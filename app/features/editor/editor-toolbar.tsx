@@ -89,7 +89,7 @@ export function EditorToolbar({ resume, exportItems }: { resume: Resume; exportI
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm">
-              <DownloadIcon /> Export
+              <DownloadIcon /> {t("editor.export")}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
