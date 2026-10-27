@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { normalizeDate } from "./dates";
-import { extractContacts } from "./heuristics";
+import { extractContacts, extractName } from "./heuristics";
 
 describe("extractContacts", () => {
   it("pulls emails, phones and labelled links verbatim", () => {
@@ -21,6 +21,15 @@ describe("extractContacts", () => {
     expect(extractContacts("Trabajé de 2019 a 2021 con Node 18.2").links).toBeUndefined();
     expect(extractContacts("Trabajé de 2019 a 2021").phone).toBeUndefined();
     expect(extractContacts("Acme 2019-2021").phone).toBeUndefined();
+  });
+});
+
+describe("extractName", () => {
+  it("reads a name only after an explicit cue", () => {
+    expect(extractName("Me llamo andres velez, soy desarrollador")).toBe("Andres Velez");
+    expect(extractName("Hi, my name is Ana María López and I code")).toBe("Ana María López");
+    expect(extractName("I'm a frontend developer")).toBeUndefined();
+    expect(extractName("Trabajo en Rappi")).toBeUndefined();
   });
 });
 
