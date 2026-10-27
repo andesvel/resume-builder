@@ -75,6 +75,7 @@ export default function Settings() {
     );
   }
 
+  const modelBytes = cachedModels.reduce((sum, id) => sum + (sizes[id] ?? 0), 0);
   const memoryValue = overrides.memoryGB === null ? "auto" : String(overrides.memoryGB);
   const f16Value = overrides.f16 === null ? "auto" : overrides.f16 ? "yes" : "no";
   const detectedMemory = detected.memoryGB === null ? t("settings.unknown") : `${detected.memoryGB} GB`;
@@ -150,9 +151,12 @@ export default function Settings() {
         <h2 id="cache-title" className="text-xl font-semibold tracking-tight">{t("settings.cacheTitle")}</h2>
         {storage && storage.quota > 0 ? (
           <div className="grid gap-2">
-            <Progress value={(storage.usage / storage.quota) * 100} aria-label={t("settings.cacheTitle")} />
+            {/* Model sizes are exact and update right away; the browser's estimate can lag (Safari). */}
+            <Progress value={(modelBytes / storage.quota) * 100} aria-label={t("settings.cacheTitle")} />
             <p className="text-xs text-muted-foreground">
-              {t("settings.storageUsed", { used: formatBytes(storage.usage, locale), quota: formatBytes(storage.quota, locale) })}
+              {t("settings.modelsUsed", { used: formatBytes(modelBytes, locale), quota: formatBytes(storage.quota, locale) })}
+              {" · "}
+              {t("settings.storageUsed", { used: formatBytes(storage.usage, locale) })}
             </p>
           </div>
         ) : null}

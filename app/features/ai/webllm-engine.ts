@@ -72,9 +72,21 @@ export async function cachedBuildSizes(): Promise<Record<string, number>> {
   return sizes;
 }
 
+/**
+ * Delete one build. WebLLM's own helper doesn't always remove every weight
+ * shard (seen in Safari), so any response still under the model's URL is
+ * swept afterwards.
+ */
 export async function deleteCachedBuild(id: string): Promise<void> {
-  const { deleteModelAllInfoInCache } = await import("@mlc-ai/web-llm");
-  await deleteModelAllInfoInCache(id);
+  const { deleteModelAllInfoInCache, prebuiltAppConfig } = await import("@mlc-ai/web-llm");
+  await deleteModelAllInfoInCache(id).catch(() => {});
+  const base = prebuiltAppConfig.model_list.find((m) => m.model_id === id)?.model;
+  if (!base) return;
+  for (const name of await caches.keys()) {
+    if (!name.startsWith("webllm/")) continue;
+    const cache = await caches.open(name);
+    for (const request of await cache.keys()) if (request.url.startsWith(base)) await cache.delete(request);
+  }
 }
 
 /** Remove every WebLLM cache (weights, configs, compiled libraries). */
