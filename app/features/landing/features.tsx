@@ -1,5 +1,8 @@
 import { FileCheck2Icon, FileInputIcon, LanguagesIcon, LockIcon, MailIcon, PenLineIcon } from "lucide-react";
 
+import { ArrowRightIcon } from "lucide-react";
+import { Link } from "react-router";
+
 import { type MessageKey, useI18n } from "~/i18n";
 
 const items: { icon: typeof PenLineIcon; title: MessageKey; body: MessageKey }[] = [
@@ -27,6 +30,9 @@ export function Features() {
           </li>
         ))}
       </ul>
+      <Link to="/agents" viewTransition className="inline-flex items-center gap-1.5 justify-self-start text-sm font-medium underline-offset-4 hover:underline">
+        {t("agents.landingCta")} <ArrowRightIcon className="size-4" aria-hidden />
+      </Link>
     </section>
   );
 }
