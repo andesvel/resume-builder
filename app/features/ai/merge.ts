@@ -35,6 +35,12 @@ function sameEntity(a: string | undefined, b: string | undefined): boolean {
 
 const clean = (v: string | undefined) => v?.trim() ?? "";
 
+/** Fill a field only if it is still empty: identity fields of existing entries are the user's call. */
+function fill<T extends object, K extends keyof T>(target: T, key: K, value: T[K] | undefined, changed: () => void) {
+  if (typeof target[key] === "string" && (target[key] as string).trim() !== "") return;
+  assign(target, key, value, changed);
+}
+
 /** Assign only when the incoming value is non-empty, so a later input can correct but never blank a field. */
 function assign<T extends object, K extends keyof T>(target: T, key: K, value: T[K] | undefined, changed: () => void) {
   if (typeof value === "string" && value.trim() === "") return;
@@ -110,9 +116,9 @@ export function mergeExtraction(resume: Resume, x: Extraction): { resume: Resume
       const target = existing ?? experienceSchema.parse({});
       let touched = false;
       const mark = () => void (touched = true);
-      assign(target, "company", clean(e.company), mark);
-      assign(target, "role", clean(e.role), mark);
-      assign(target, "location", clean(e.location), mark);
+      fill(target, "company", clean(e.company), mark);
+      fill(target, "role", clean(e.role), mark);
+      fill(target, "location", clean(e.location), mark);
       assign(target, "startDate", start.date, mark);
       if (current) {
         assign(target, "current", true, mark);
@@ -134,9 +140,9 @@ export function mergeExtraction(resume: Resume, x: Extraction): { resume: Resume
       const target = existing ?? educationSchema.parse({});
       let touched = false;
       const mark = () => void (touched = true);
-      assign(target, "institution", clean(e.institution), mark);
-      assign(target, "degree", clean(e.degree), mark);
-      assign(target, "field", clean(e.field), mark);
+      fill(target, "institution", clean(e.institution), mark);
+      fill(target, "degree", clean(e.degree), mark);
+      fill(target, "field", clean(e.field), mark);
       assign(target, "startDate", normalizeDate(e.startDate).date, mark);
       assign(target, "endDate", normalizeDate(e.endDate).date, mark);
       if (!existing) {

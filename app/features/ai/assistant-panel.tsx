@@ -49,6 +49,7 @@ export function AssistantPanel() {
   const { getEngine, consent, status, supported } = useLocalAi();
   const [text, setText] = useState("");
   const [working, setWorking] = useState(false);
+  const [step, setStep] = useState<[number, number] | null>(null);
 
   const submit = async () => {
     const input = text.trim();
@@ -57,7 +58,9 @@ export function AssistantPanel() {
     setWorking(true);
     try {
       const engine = await getEngine();
-      const result = await applyFreeText(engine, useEditor.getState().resume ?? resume, input);
+      const result = await applyFreeText(engine, useEditor.getState().resume ?? resume, input, {
+        onStep: (done, total) => setStep([done, total]),
+      });
       if (isEmptySummary(result.summary)) {
         toast.info(t("assistant.nothingFound"));
         return;
@@ -75,6 +78,7 @@ export function AssistantPanel() {
       }
     } finally {
       setWorking(false);
+      setStep(null);
     }
   };
 
@@ -132,6 +136,7 @@ export function AssistantPanel() {
         <Button size="sm" onClick={submit} disabled={working || !text.trim() || supported === null}>
           {working ? <LoaderIcon className="animate-spin" /> : <SparklesIcon />}
           {working ? t("assistant.working") : t("assistant.submit")}
+          {step && step[1] > 1 ? <span className="tabular-nums opacity-70">{Math.min(step[0] + 1, step[1])}/{step[1]}</span> : null}
         </Button>
       </CardFooter>
       <ConsentDialog {...consent} />
