@@ -2,26 +2,48 @@ import type { ChatCompletionRequestNonStreaming } from "@mlc-ai/web-llm";
 
 import type { Availability, GenerateOptions, LlmEngine, LoadProgress } from "./engine";
 import { parseJsonReply, stripReasoning } from "./output";
-import { webLlmModels, type WebLlmModelId } from "./models";
+import { type DeviceInfo, variantFor, webLlmModels } from "./models";
 
-/** WebGPU support plus which models are already in the browser cache. */
-export async function webLlmAvailability(): Promise<{ availability: Availability; cached: WebLlmModelId[] }> {
-  const unsupported = { availability: "unsupported" as const, cached: [] };
-  if (!("gpu" in navigator)) return unsupported;
+type GpuAdapter = { features: Set<string> };
+type Gpu = { requestAdapter(): Promise<GpuAdapter | null> };
+
+/** WebGPU support, what the device can handle, and which builds are already cached. */
+export async function webLlmAvailability(): Promise<{ availability: Availability; device: DeviceInfo; cached: string[] }> {
+  const device: DeviceInfo = {
+    memoryGB: (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? null,
+    f16: false,
+    mobile: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent),
+    storageMB: null,
+  };
   try {
-    const adapter = await (navigator as Navigator & { gpu: { requestAdapter(): Promise<unknown> } }).gpu.requestAdapter();
+    const { quota, usage } = await navigator.storage.estimate();
+    if (quota !== undefined) device.storageMB = Math.round((quota - (usage ?? 0)) / 1024 / 1024);
+  } catch {
+    // Unknown free space: don't flag anything.
+  }
+  const unsupported = { availability: "unsupported" as const, device, cached: [] };
+  const gpu = (navigator as Navigator & { gpu?: Gpu }).gpu;
+  if (!gpu) return unsupported;
+  try {
+    const adapter = await gpu.requestAdapter();
     if (!adapter) return unsupported;
+    device.f16 = adapter.features.has("shader-f16");
   } catch {
     return unsupported;
   }
   const { hasModelInCache } = await import("@mlc-ai/web-llm");
-  const flags = await Promise.all(webLlmModels.map((m) => hasModelInCache(m.id).catch(() => false)));
-  const cached = webLlmModels.filter((_, i) => flags[i]).map((m) => m.id);
-  return { availability: cached.length ? "ready" : "download", cached };
+  const ids = webLlmModels.map((m) => variantFor(m.key, device).id);
+  const flags = await Promise.all(ids.map((id) => hasModelInCache(id).catch(() => false)));
+  const cached = ids.filter((_, i) => flags[i]);
+  return { availability: cached.length ? "ready" : "download", device, cached };
 }
 
 /** Open-weights model on WebGPU via WebLLM, running in a Web Worker. Weights are cached by the browser. */
-export async function createWebLlmEngine(modelId: WebLlmModelId, onProgress?: (p: LoadProgress) => void): Promise<LlmEngine> {
+export async function createWebLlmEngine(
+  modelId: string,
+  name: string,
+  onProgress?: (p: LoadProgress) => void,
+): Promise<LlmEngine> {
   const { CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
   const worker = new Worker(new URL("./webllm.worker.ts", import.meta.url), { type: "module" });
   const engine = await CreateWebWorkerMLCEngine(worker, modelId, {
@@ -44,7 +66,6 @@ export async function createWebLlmEngine(modelId: WebLlmModelId, onProgress?: (p
     return reply.choices[0]?.message.content ?? "";
   };
 
-  const name = webLlmModels.find((m) => m.id === modelId)?.name ?? modelId;
   return {
     id: "webllm",
     label: name,
