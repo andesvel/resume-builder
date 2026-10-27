@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import type { Availability, LlmEngine, LoadProgress } from "./engine";
+import { chromeAvailability, createChromeEngine, createWebLlmEngine, webLlmAvailability } from "./engines.client";
 import { defaultWebLlmModel, type WebLlmModelId, webLlmModels } from "./models";
 
 export type EnginePreference = "auto" | "chrome" | "webllm";
@@ -50,10 +51,6 @@ export const useAi = create<AiState>()((set, get) => ({
   status: { kind: "idle" },
 
   detect: async () => {
-    const [{ chromeAvailability }, { webLlmAvailability }] = await Promise.all([
-      import("./chrome-engine.client"),
-      import("./webllm-engine.client"),
-    ]);
     const [chrome, webllm] = await Promise.all([chromeAvailability(), webLlmAvailability()]);
     set({ availability: { chrome, webllm: webllm.availability }, cachedModels: webllm.cached, ...readPreference() });
   },
@@ -85,11 +82,7 @@ export const useAi = create<AiState>()((set, get) => ({
     const onProgress = (progress: LoadProgress) => set({ status: { kind: "loading", progress } });
     onProgress({ progress: null });
     loading = (async () => {
-      if (choice.engine === "chrome") {
-        const { createChromeEngine } = await import("./chrome-engine.client");
-        return createChromeEngine(onProgress);
-      }
-      const { createWebLlmEngine } = await import("./webllm-engine.client");
+      if (choice.engine === "chrome") return createChromeEngine(onProgress);
       return createWebLlmEngine(get().webLlmModel, onProgress);
     })()
       .then((engine) => {
