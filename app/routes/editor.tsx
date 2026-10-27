@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { EditorToolbar } from "~/features/editor/editor-toolbar";
+import { ExportPdfItem, PreviewPane } from "~/features/pdf/preview-pane";
 import { ResumeEditor } from "~/features/editor/resume-editor";
 import { getResumeRepository } from "~/features/resume/repository";
 import { startAutosave, useEditor } from "~/features/resume/store";
@@ -64,17 +65,13 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
 
   if (!resume || resume.id !== loaderData.resume.id) return <HydrateFallback />;
 
-  const preview = (
-    <div className="grid min-h-[60vh] place-items-center rounded-lg border border-dashed text-sm text-muted-foreground">
-      {t("editor.preview")}
-    </div>
-  );
+  const preview = <PreviewPane resume={resume} />;
 
   return (
     <>
       <SiteHeader />
       <main className="mx-auto grid max-w-7xl gap-4 px-4 py-4">
-        <EditorToolbar resume={resume} />
+        <EditorToolbar resume={resume} exportItems={<ExportPdfItem resume={resume} />} />
         {wide ? (
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6">
             <ResumeEditor resume={resume} />

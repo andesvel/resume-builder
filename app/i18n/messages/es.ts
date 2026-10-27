@@ -107,4 +107,19 @@ export const es: Messages = {
     subtitle: "Subtítulo",
     newSection: "Nueva sección",
   },
+  templates: {
+    label: "Plantilla",
+    professional: "Profesional",
+    professionalDescription: "Una columna clásica. La opción más segura para ATS.",
+    modern: "Moderna",
+    modernDescription: "Dos columnas con barra lateral para contacto y habilidades.",
+    minimal: "Minimalista",
+    minimalDescription: "Serif y aireada; deja hablar al contenido.",
+  },
+  exportPdf: "Descargar PDF",
+  pdfError: "No se pudo generar el PDF.",
+  pdf: {
+    contact: "Contacto",
+    in: " en ",
+  },
 };

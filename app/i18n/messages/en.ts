@@ -104,6 +104,21 @@ export const en = {
     subtitle: "Subtitle",
     newSection: "New section",
   },
+  templates: {
+    label: "Template",
+    professional: "Professional",
+    professionalDescription: "Classic single column. The safest choice for ATS.",
+    modern: "Modern",
+    modernDescription: "Two columns with a sidebar for contact and skills.",
+    minimal: "Minimal",
+    minimalDescription: "Serif, airy, lets the content speak.",
+  },
+  exportPdf: "Download PDF",
+  pdfError: "Couldn’t render the PDF.",
+  pdf: {
+    contact: "Contact",
+    in: " in ",
+  },
 };
 
 type Widen<T> = { [K in keyof T]: T[K] extends string ? string : Widen<T[K]> };
