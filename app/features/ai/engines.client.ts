@@ -4,4 +4,12 @@
  * out of the Worker bundle.
  */
 export { chromeAvailability, createChromeEngine } from "./chrome-engine";
-export { createWebLlmEngine, webLlmAvailability } from "./webllm-engine";
+export {
+  cachedBuilds,
+  cachedBuildSizes,
+  clearModelCaches,
+  createWebLlmEngine,
+  deleteCachedBuild,
+  detectDevice,
+  webLlmAvailability,
+} from "./webllm-engine";
