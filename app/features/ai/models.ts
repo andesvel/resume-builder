@@ -15,6 +15,15 @@ export const webLlmModels = [
 
 export type ModelKey = (typeof webLlmModels)[number]["key"];
 
+/**
+ * Recommendation order, best first, limited to models we evaluated on the
+ * extraction pipeline (same Spanish test text, Oct 2026): Gemma 4 E2B got
+ * every field and highlight right; Qwen3.5 2B found highlights but missed the
+ * name; Qwen3 0.6B got the core facts in 8 s but no highlights. Bigger models
+ * stay selectable but aren't recommended until evaluated.
+ */
+const RECOMMENDATION_ORDER: ModelKey[] = ["gemma-4-e2b", "qwen3.5-2b", "qwen3-0.6b"];
+
 export function isModelKey(value: unknown): value is ModelKey {
   return webLlmModels.some((m) => m.key === value);
 }
@@ -68,8 +77,8 @@ export function tagModels(device: DeviceInfo, cached: readonly string[] = []): R
     const fitsStorage = cached.includes(variant.id) || device.storageMB === null || variant.sizeMB <= device.storageMB;
     return { key: m.key, size: variant.sizeMB, fitsStorage };
   });
-  const fitting = sizes.filter((m) => m.size <= budget && m.fitsStorage);
-  const recommended = (fitting.at(-1) ?? sizes[0])?.key;
+  const fits = new Set(sizes.filter((m) => m.size <= budget && m.fitsStorage).map((m) => m.key));
+  const recommended = RECOMMENDATION_ORDER.find((key) => fits.has(key)) ?? sizes[0]?.key;
   const lightest = sizes[0]?.key;
 
   return Object.fromEntries(
