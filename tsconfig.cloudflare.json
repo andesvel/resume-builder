@@ -10,16 +10,23 @@
   ],
   "compilerOptions": {
     "composite": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2023"],
-    "types": ["@cloudflare/workers-types", "vite/client"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2023"
+    ],
+    "types": [
+      "@cloudflare/workers-types",
+      "vite/client"
+    ],
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "rootDirs": [".", "./.react-router/types"],
-    "paths": {
-      "~/*": ["./app/*"]
-    },
+    "rootDirs": [
+      ".",
+      "./.react-router/types"
+    ],
     "esModuleInterop": true,
     "resolveJsonModule": true
   }
