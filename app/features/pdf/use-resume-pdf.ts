@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { Resume } from "~/features/resume/schema";
 
-import { renderResumePdf } from "./render";
+import { renderResumePdf } from "./render.client";
 
 /** Re-render the PDF shortly after the resume stops changing. */
 export function useResumePdf(resume: Resume, delay = 350) {
