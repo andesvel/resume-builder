@@ -27,6 +27,12 @@ Ideas parked after the MVP. Check items off as they land.
 - [ ] Open-source release: pick a license (MIT), CONTRIBUTING, issue templates
 - [ ] Enforce the branch ruleset (`.github/rulesets/`) once public or on GitHub Pro
 
+## SEO
+
+- [ ] Open Graph / social image (1200×630) and favicons once the logo exists
+- [ ] Locale in the URL (e.g. \`/es\`) with \`hreflang\`, so the Spanish pages get indexed too (today the language comes from a cookie or Accept-Language on the same URL, so crawlers see English)
+- [ ] Add a LICENSE: the repo is public but has none, so the code is all rights reserved by default
+
 ## Editor & templates
 
 - [ ] Drag-and-drop reordering (sections and entries)
