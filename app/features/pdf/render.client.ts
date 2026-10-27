@@ -14,3 +14,13 @@ export async function renderResumePdf(resume: Resume): Promise<Blob> {
   const element = createElement(ResumeDocument, { resume }) as unknown as Parameters<typeof pdf>[0];
   return pdf(element).toBlob();
 }
+
+export async function renderCoverLetterPdf(resume: Resume): Promise<Blob> {
+  const [{ pdf }, { CoverLetterDocument }, { createElement }] = await Promise.all([
+    import("@react-pdf/renderer"),
+    import("./cover-letter-document"),
+    import("react"),
+  ]);
+  const element = createElement(CoverLetterDocument, { resume }) as unknown as Parameters<typeof pdf>[0];
+  return pdf(element).toBlob();
+}
