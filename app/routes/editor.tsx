@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { data, Link } from "react-router";
+import { data, isRouteErrorResponse, Link } from "react-router";
 
 import { SiteHeader } from "~/components/layout/site-header";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { AssistantPanel } from "~/features/ai/assistant-panel";
 import { EditorToolbar } from "~/features/editor/editor-toolbar";
 import { ExportPdfItem, PreviewPane } from "~/features/pdf/preview-pane";
 import { ResumeEditor } from "~/features/editor/resume-editor";
@@ -37,8 +38,9 @@ export function HydrateFallback() {
   );
 }
 
-export function ErrorBoundary() {
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const { t } = useI18n();
+  if (!isRouteErrorResponse(error)) throw error;
   return (
     <>
       <SiteHeader />
@@ -66,6 +68,12 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
   if (!resume || resume.id !== loaderData.resume.id) return <HydrateFallback />;
 
   const preview = <PreviewPane resume={resume} />;
+  const content = (
+    <div className="grid content-start gap-4">
+      <AssistantPanel />
+      <ResumeEditor resume={resume} />
+    </div>
+  );
 
   return (
     <>
@@ -74,7 +82,7 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
         <EditorToolbar resume={resume} exportItems={<ExportPdfItem resume={resume} />} />
         {wide ? (
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6">
-            <ResumeEditor resume={resume} />
+            {content}
             <div className="sticky top-20 self-start">{preview}</div>
           </div>
         ) : (
@@ -83,9 +91,7 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
               <TabsTrigger value="content">{t("editor.content")}</TabsTrigger>
               <TabsTrigger value="preview">{t("editor.preview")}</TabsTrigger>
             </TabsList>
-            <TabsContent value="content">
-              <ResumeEditor resume={resume} />
-            </TabsContent>
+            <TabsContent value="content">{content}</TabsContent>
             <TabsContent value="preview">{preview}</TabsContent>
           </Tabs>
         )}
