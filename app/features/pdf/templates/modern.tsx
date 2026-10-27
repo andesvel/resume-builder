@@ -11,7 +11,7 @@ const theme: Theme = {
   ink: "#111111",
   muted: "#555555",
   rule: "#111111",
-  heading: { fontSize: 9.5, textTransform: "uppercase", letterSpacing: 1.2 },
+  heading: { fontSize: 9.5, textTransform: "uppercase", letterSpacing: 0.6 },
   headingRule: true,
   sectionGap: 12,
 };
@@ -53,7 +53,7 @@ export function ModernTemplate({ resume }: { resume: Resume }) {
               </View>
             ))
           : null}
-        <Sections ctx={ctx} sections={side.filter((k) => k !== "skills")} />
+        <Sections ctx={{ ...ctx, compact: true }} sections={side.filter((k) => k !== "skills")} />
       </View>
       <View style={{ flex: 1, paddingVertical: 36, paddingHorizontal: 24 }}>
         <Sections ctx={ctx} sections={main} />
