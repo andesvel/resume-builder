@@ -103,6 +103,15 @@ export const en = {
       get_import_link: "Link that saves the draft into your browser",
     },
   },
+  seo: {
+    homeTitle: "Resume Builder: an ATS-friendly resume from plain words",
+    homeDescription: "Free resume builder. Describe your experience in plain words and get an ATS-friendly PDF resume and cover letter. The AI runs in your browser; your data never leaves it.",
+    agentsTitle: "Write your resume with an AI agent (MCP) · Resume Builder",
+    agentsDescription: "Connect Claude Code, Codex, OpenCode or any MCP client to Resume Builder to create, edit and export resumes and cover letters as PDF.",
+    resumesTitle: "Your resumes · Resume Builder",
+    settingsTitle: "Settings · Resume Builder",
+    privateDescription: "Resumes stored in this browser.",
+  },
   landing: {
     title: "Your resume, without the blank page",
     subtitle: "Describe your experience in plain words and get a clean resume that applicant tracking systems can read. Edit any detail, pick a template, download the PDF.",

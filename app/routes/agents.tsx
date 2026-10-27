@@ -1,17 +1,29 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";
 
-import { REPO_URL } from "~/components/layout/site-header";
 import { Button } from "~/components/ui/button";
-import { useI18n } from "~/i18n";
+import { getT, useI18n } from "~/i18n";
+import { REPO_URL, rootData, seo, SITE_NAME } from "~/lib/seo";
 
 import type { Route } from "./+types/agents";
 
-export function meta() {
-  return [
-    { title: "AI agents (MCP) · Resume Builder" },
-    { name: "description", content: "Connect Claude Code, Codex or OpenCode to Resume Builder over MCP to write, edit and export resumes." },
-  ];
+export function meta({ matches }: Route.MetaArgs) {
+  const root = rootData(matches);
+  const t = getT(root.locale);
+  return seo({
+    title: t("seo.agentsTitle"),
+    description: t("seo.agentsDescription"),
+    path: "/agents",
+    root,
+    jsonLd: {
+      "@type": "TechArticle",
+      headline: t("agents.title"),
+      description: t("seo.agentsDescription"),
+      url: `${root.origin}/agents`,
+      inLanguage: root.locale,
+      about: { "@type": "SoftwareApplication", name: SITE_NAME, url: `${root.origin}/` },
+    },
+  });
 }
 
 export function loader({ request }: Route.LoaderArgs) {

@@ -1,13 +1,42 @@
 import { CreateActions } from "~/features/home/create-actions";
 import { Features } from "~/features/landing/features";
 import { SamplePreview } from "~/features/landing/sample-preview";
-import { useI18n } from "~/i18n";
+import { getT, useI18n } from "~/i18n";
+import { REPO_URL, rootData, seo, SITE_NAME } from "~/lib/seo";
 
-export function meta() {
-  return [
-    { title: "Resume Builder" },
-    { name: "description", content: "Describe your experience in plain words and get an ATS-friendly resume. Local-first, with in-browser AI." },
-  ];
+import type { Route } from "./+types/home";
+
+export function meta({ matches }: Route.MetaArgs) {
+  const root = rootData(matches);
+  const t = getT(root.locale);
+  return seo({
+    title: t("seo.homeTitle"),
+    description: t("seo.homeDescription"),
+    path: "/",
+    root,
+    jsonLd: {
+      "@type": "WebApplication",
+      name: SITE_NAME,
+      url: `${root.origin}/`,
+      description: t("seo.homeDescription"),
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Any (web browser)",
+      browserRequirements: "Requires a modern browser; local AI needs WebGPU or Chrome's built-in AI",
+      inLanguage: ["en", "es"],
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      featureList: [
+        "Natural-language resume input with on-device AI",
+        "ATS-friendly PDF templates",
+        "Cover letter drafting",
+        "Import from PDF, Word and LinkedIn",
+        "MCP server for AI agents",
+        "English and Spanish",
+      ],
+      author: { "@type": "Person", name: "Andres" },
+      sameAs: [REPO_URL],
+    },
+  });
 }
 
 export default function Home() {

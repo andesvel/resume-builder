@@ -23,7 +23,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  return [{ title: `${loaderData?.resume.title ?? "Editor"} · Resume Builder` }];
+  return [{ title: `${loaderData?.resume.title ?? "Editor"} · Resume Builder` }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export function HydrateFallback() {

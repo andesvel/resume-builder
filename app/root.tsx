@@ -20,7 +20,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 export function loader({ request }: Route.LoaderArgs) {
-  return { locale: resolveLocale(request) };
+  return { locale: resolveLocale(request), origin: new URL(request.url).origin };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -30,6 +30,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light dark" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Meta />
         <Links />
