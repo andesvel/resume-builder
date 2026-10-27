@@ -34,7 +34,7 @@ export default function ImportRoute({ loaderData }: Route.ComponentProps) {
   const save = async () => {
     await getResumeRepository().save(resume);
     setState("saved");
-    navigate(`/r/${resume.id}`, { replace: true });
+    navigate(`/r/${resume.id}`, { replace: true, viewTransition: true });
   };
 
   useEffect(() => {
