@@ -22,6 +22,28 @@ export const es: Messages = {
     loading: "Cargando…",
   },
 
+  landing: {
+    title: "Tu CV, sin la hoja en blanco",
+    subtitle: "Describe tu experiencia con tus palabras y obtén un CV limpio que los sistemas de selección (ATS) pueden leer. Ajusta cualquier detalle, elige una plantilla y descarga el PDF.",
+    previewAlt: "CV de ejemplo hecho con esta app",
+    featuresTitle: "Qué hace",
+    f1Title: "Escríbelo como lo dirías",
+    f1Body: "Cuéntale de tus trabajos y estudios con tus palabras; un modelo que corre en tu dispositivo lo convierte en secciones, fechas y logros. Sigue escribiendo para añadir o corregir.",
+    f2Title: "Nada sale de tu navegador",
+    f2Body: "Los CVs se guardan en este navegador y la IA corre localmente. Sin cuenta y sin subir archivos.",
+    f3Title: "PDFs que los ATS pueden leer",
+    f3Body: "Texto real, nombres de sección estándar y sin palabras cortadas con guion, para que los sistemas que filtran postulaciones lo lean bien.",
+    f4Title: "Parte de lo que ya tienes",
+    f4Body: "Importa un CV viejo en PDF o Word, o el export de datos de LinkedIn.",
+    f5Title: "Con carta de presentación",
+    f5Body: "Redáctala a partir de tu CV y una vacante, edítala y expórtala con el mismo estilo.",
+    f6Title: "Español e inglés",
+    f6Body: "Interfaz y contenido del CV en cualquiera de los dos idiomas, con fechas y títulos acordes.",
+  },
+  footer: {
+    madeBy: "Hecho por Andres usando React Router v8 y Claude.",
+    privacy: "Tus CVs se guardan solo en este navegador.",
+  },
   home: {
     title: "Tus CVs",
     empty: "Aún no tienes CVs. Empieza desde cero, prueba el ejemplo o importa un archivo.",
