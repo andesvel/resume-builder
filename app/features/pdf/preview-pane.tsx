@@ -1,3 +1,4 @@
+import { CircleAlertIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
@@ -26,7 +27,10 @@ export function PreviewPane({ resume, kind = "resume" }: { resume: Resume; kind?
         </div>
       ) : null}
       {error ? (
-        <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400">{t("pdfError")}</p>
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CircleAlertIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" aria-hidden />
+          {t("pdfError")}
+        </p>
       ) : null}
       <PdfPreview blob={blob} className="max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-lg bg-muted/40 p-3" />
     </div>
