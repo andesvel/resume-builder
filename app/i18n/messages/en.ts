@@ -172,6 +172,9 @@ export const en = {
     hint: "The draft only uses facts from your resume. Review every sentence before sending.",
   },
   templates: {
+    font: "Font",
+    fontSans: "Sans serif",
+    fontSerif: "Serif",
     label: "Template",
     professional: "Professional",
     professionalDescription: "Classic single column. The safest choice for ATS.",
