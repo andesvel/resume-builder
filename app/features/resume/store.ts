@@ -68,9 +68,16 @@ export const useEditor = create<EditorState>()((set, get) => ({
   },
 }));
 
+let timer: ReturnType<typeof setTimeout> | undefined;
+
+/** Drop a scheduled save (e.g. right before deleting the resume, so it isn't written back). */
+export function cancelPendingSave() {
+  clearTimeout(timer);
+  timer = undefined;
+}
+
 /** Persist the open resume shortly after every change. Returns an unsubscribe. */
 export function startAutosave(): () => void {
-  let timer: ReturnType<typeof setTimeout> | undefined;
   const unsubscribe = useEditor.subscribe((state, prev) => {
     if (!state.resume || state.resume === prev.resume || !prev.resume) return;
     if (state.resume.id !== prev.resume.id) return;
