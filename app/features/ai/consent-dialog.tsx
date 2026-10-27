@@ -1,3 +1,5 @@
+import { TriangleAlertIcon } from "lucide-react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +36,10 @@ export function ConsentDialog({ open, onOpenChange, onAccept }: { open: boolean;
               : t("assistant.consentBodyWebLlm", { model: model?.name ?? "", size })}
           </AlertDialogDescription>
           {engine === "webllm" && heavy ? (
-            <p className="rounded-md bg-amber-500/10 p-2 text-sm text-amber-800 dark:text-amber-300">{t("assistant.consentHeavy")}</p>
+            <p className="flex gap-2 text-sm text-muted-foreground">
+              <TriangleAlertIcon className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+              {t("assistant.consentHeavy")}
+            </p>
           ) : null}
         </AlertDialogHeader>
         <AlertDialogFooter>
