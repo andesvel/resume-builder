@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import type { Availability, LlmEngine, LoadProgress } from "./engine";
 import { chromeAvailability, createChromeEngine, createWebLlmEngine, webLlmAvailability } from "./engines.client";
-import { defaultWebLlmModel, type WebLlmModelId, webLlmModels } from "./models";
+import { type DeviceInfo, isModelKey, type ModelKey, recommendedModel, variantFor } from "./models";
 
 export type EnginePreference = "auto" | "chrome" | "webllm";
 
@@ -14,30 +14,32 @@ type Status =
 
 interface AiState {
   availability: { chrome: Availability; webllm: Availability } | null;
-  cachedModels: WebLlmModelId[];
+  device: DeviceInfo | null;
+  /** Concrete WebLLM build ids already in the browser cache. */
+  cachedModels: string[];
   preference: EnginePreference;
-  webLlmModel: WebLlmModelId;
+  /** Model the user picked; null means "recommended for this device". */
+  webLlmModel: ModelKey | null;
   status: Status;
   detect: () => Promise<void>;
+  /** The WebLLM model that would load, after applying the device recommendation. */
+  activeModel: () => ModelKey | null;
   /** Which backend `load` would use, given availability and preference. */
   resolve: () => { engine: "chrome" | "webllm"; needsDownload: boolean } | null;
   load: () => Promise<LlmEngine>;
-  setPreference: (preference: EnginePreference, model?: WebLlmModelId) => void;
+  setPreference: (preference: EnginePreference, model?: ModelKey | null) => void;
 }
 
 const PREF_KEY = "ai-preference";
 const MODEL_KEY = "ai-webllm-model";
 
-function readPreference(): { preference: EnginePreference; webLlmModel: WebLlmModelId } {
+function readPreference(): { preference: EnginePreference; webLlmModel: ModelKey | null } {
   try {
     const v = localStorage.getItem(PREF_KEY);
     const m = localStorage.getItem(MODEL_KEY);
-    return {
-      preference: v === "chrome" || v === "webllm" ? v : "auto",
-      webLlmModel: webLlmModels.find((x) => x.id === m)?.id ?? defaultWebLlmModel,
-    };
+    return { preference: v === "chrome" || v === "webllm" ? v : "auto", webLlmModel: isModelKey(m) ? m : null };
   } catch {
-    return { preference: "auto", webLlmModel: defaultWebLlmModel };
+    return { preference: "auto", webLlmModel: null };
   }
 }
 
@@ -45,18 +47,29 @@ let loading: Promise<LlmEngine> | null = null;
 
 export const useAi = create<AiState>()((set, get) => ({
   availability: null,
+  device: null,
   cachedModels: [],
   preference: "auto",
-  webLlmModel: defaultWebLlmModel,
+  webLlmModel: null,
   status: { kind: "idle" },
 
   detect: async () => {
     const [chrome, webllm] = await Promise.all([chromeAvailability(), webLlmAvailability()]);
-    set({ availability: { chrome, webllm: webllm.availability }, cachedModels: webllm.cached, ...readPreference() });
+    set({
+      availability: { chrome, webllm: webllm.availability },
+      device: webllm.device,
+      cachedModels: webllm.cached,
+      ...readPreference(),
+    });
+  },
+
+  activeModel: () => {
+    const { device, webLlmModel } = get();
+    return webLlmModel ?? (device ? recommendedModel(device) : null);
   },
 
   resolve: () => {
-    const { availability, preference, cachedModels, webLlmModel } = get();
+    const { availability, preference, cachedModels, device } = get();
     if (!availability) return null;
     const usable = (a: Availability) => a !== "unsupported";
     const pick =
@@ -68,7 +81,11 @@ export const useAi = create<AiState>()((set, get) => ({
             ? "webllm"
             : null;
     if (!pick) return null;
-    const needsDownload = pick === "webllm" ? !cachedModels.includes(webLlmModel) : availability.chrome === "download";
+    const model = get().activeModel();
+    const needsDownload =
+      pick === "webllm"
+        ? !(model && device && cachedModels.includes(variantFor(model, device).id))
+        : availability.chrome === "download";
     return { engine: pick, needsDownload };
   },
 
@@ -83,15 +100,17 @@ export const useAi = create<AiState>()((set, get) => ({
     onProgress({ progress: null });
     loading = (async () => {
       if (choice.engine === "chrome") return createChromeEngine(onProgress);
-      return createWebLlmEngine(get().webLlmModel, onProgress);
+      const { device } = get();
+      const model = get().activeModel();
+      if (!device || !model) throw new Error("Device not detected");
+      const variant = variantFor(model, device);
+      const engine = await createWebLlmEngine(variant.id, variant.name, onProgress);
+      const cached = get().cachedModels;
+      if (!cached.includes(variant.id)) set({ cachedModels: [...cached, variant.id] });
+      return engine;
     })()
       .then((engine) => {
-        const cached = get().cachedModels;
-        const model = get().webLlmModel;
-        set({
-          status: { kind: "ready", engine },
-          cachedModels: engine.id === "webllm" && !cached.includes(model) ? [...cached, model] : cached,
-        });
+        set({ status: { kind: "ready", engine } });
         return engine;
       })
       .catch((error: unknown) => {
@@ -105,10 +124,11 @@ export const useAi = create<AiState>()((set, get) => ({
   },
 
   setPreference: (preference, model) => {
-    const webLlmModel = model ?? get().webLlmModel;
+    const webLlmModel = model === undefined ? get().webLlmModel : model;
     try {
       localStorage.setItem(PREF_KEY, preference);
-      localStorage.setItem(MODEL_KEY, webLlmModel);
+      if (webLlmModel) localStorage.setItem(MODEL_KEY, webLlmModel);
+      else localStorage.removeItem(MODEL_KEY);
     } catch {
       // Preference just won't persist.
     }
