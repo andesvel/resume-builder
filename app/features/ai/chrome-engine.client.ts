@@ -1,4 +1,5 @@
 import type { Availability, GenerateOptions, LlmEngine, LoadProgress } from "./engine";
+import { parseJsonReply, stripReasoning } from "./output";
 
 const io = {
   expectedInputs: [{ type: "text" as const, languages: ["en", "es"] }],
@@ -42,8 +43,8 @@ export async function createChromeEngine(onProgress?: (p: LoadProgress) => void)
   return {
     id: "chrome",
     label: "Gemini Nano",
-    generateJson: async (options) => JSON.parse(await run(options, options.schema)),
-    generateText: (options) => run(options),
+    generateJson: async (options) => parseJsonReply(await run(options, options.schema)),
+    generateText: async (options) => stripReasoning(await run(options)),
     dispose: () => {},
   };
 }
