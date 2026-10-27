@@ -24,8 +24,8 @@ export function ProfessionalTemplate({ resume }: { resume: Resume }) {
   return (
     <Page size="A4" style={[ctx.s.page, { padding: 40 }]}>
       <View style={{ alignItems: "center", marginBottom: 4 }}>
-        <Text style={{ fontFamily: theme.boldFont, fontSize: 20 }}>{basics.name}</Text>
-        {basics.headline ? <Text style={{ fontSize: 11, color: theme.muted, marginTop: 2 }}>{basics.headline}</Text> : null}
+        <Text style={{ fontFamily: theme.boldFont, fontSize: 20, lineHeight: 1.2 }}>{basics.name}</Text>
+        {basics.headline ? <Text style={{ fontSize: 11, lineHeight: 1.3, color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
         <ContactLine ctx={ctx} style={{ marginTop: 5, fontSize: 8.5, color: theme.muted, textAlign: "center" }} />
       </View>
       <Sections ctx={ctx} sections={visibleSections(resume)} />
