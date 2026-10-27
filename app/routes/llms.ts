@@ -7,7 +7,7 @@ export function loader({ request }: Route.LoaderArgs) {
   const origin = new URL(request.url).origin;
   const body = `# Resume Builder
 
-> Free, local-first resume builder with public source code. People describe their experience in plain words and get a structured, ATS-friendly resume and cover letter as PDF. The AI runs in the browser (Chrome's built-in Gemini Nano, or open models via WebLLM on WebGPU); resumes are stored only in the user's browser. Available in English and Spanish.
+> Free, open-source (MIT), local-first resume builder. People describe their experience in plain words and get a structured, ATS-friendly resume and cover letter as PDF. The AI runs in the browser (Chrome's built-in Gemini Nano, or open models via WebLLM on WebGPU); resumes are stored only in the user's browser. Available in English and Spanish.
 
 ## What it does
 
@@ -27,7 +27,7 @@ The site is also a Model Context Protocol server at ${origin}/mcp (streamable HT
 ## Links
 
 - [Home](${origin}/)
-- [Source code](${REPO_URL}): React Router 8 on Cloudflare Workers.
+- [Source code](${REPO_URL}): React Router 8 on Cloudflare Workers, MIT licensed.
 - [README](${REPO_URL}#readme)
 `;
   return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=3600" } });

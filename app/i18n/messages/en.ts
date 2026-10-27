@@ -105,7 +105,7 @@ export const en = {
   },
   seo: {
     homeTitle: "Resume Builder: an ATS-friendly resume from plain words",
-    homeDescription: "Free resume builder. Describe your experience in plain words and get an ATS-friendly PDF resume and cover letter. The AI runs in your browser; your data never leaves it.",
+    homeDescription: "Free, open-source resume builder. Describe your experience in plain words and get an ATS-friendly PDF resume and cover letter. The AI runs in your browser; your data never leaves it.",
     agentsTitle: "Write your resume with an AI agent (MCP) · Resume Builder",
     agentsDescription: "Connect Claude Code, Codex, OpenCode or any MCP client to Resume Builder to create, edit and export resumes and cover letters as PDF.",
     resumesTitle: "Your resumes · Resume Builder",

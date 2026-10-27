@@ -37,6 +37,7 @@ export function meta({ matches }: Route.MetaArgs) {
         "English and Spanish",
       ],
       author: { "@type": "Person", name: "Andres" },
+      license: "https://opensource.org/licenses/MIT",
       sameAs: [REPO_URL],
     },
   });
