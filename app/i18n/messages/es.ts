@@ -175,6 +175,8 @@ export const es: Messages = {
     hint: "El borrador solo usa datos de tu CV. Revisa cada frase antes de enviarla.",
   },
   templates: {
+    sidebarTone: "Color de la barra lateral",
+    tones: { neutral: "Gris", stone: "Piedra", sky: "Celeste", blue: "Azul", emerald: "Esmeralda", amber: "Ámbar", rose: "Rosa", violet: "Violeta" },
     font: "Fuente",
     fontSans: "Sin serifa",
     fontSerif: "Con serifa",
