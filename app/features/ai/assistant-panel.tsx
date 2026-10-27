@@ -14,6 +14,7 @@ import { useI18n } from "~/i18n";
 import { ConsentDialog } from "./consent-dialog";
 import { applyFreeText } from "./extract";
 import { isEmptySummary } from "./merge";
+import { ModelPicker } from "./model-picker";
 import { describeSummary } from "./summary";
 import { useLocalAi } from "./use-local-ai";
 
@@ -101,7 +102,8 @@ export function AssistantPanel() {
           <SparklesIcon className="size-4" /> {t("assistant.title")}
         </CardTitle>
         <CardDescription>{t("assistant.description")}</CardDescription>
-        <CardAction>
+        <CardAction className="flex gap-0.5">
+          <ModelPicker />
           <Tips />
         </CardAction>
       </CardHeader>
