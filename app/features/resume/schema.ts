@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { locales } from "~/i18n/config";
 
+import { fontIds } from "./fonts";
+
 /**
  * Single source of truth for resume data. Every field has a default so that
  * partial input (older saves, imports, AI extraction) parses into a complete,
@@ -114,6 +116,8 @@ export const resumeSchema = z.object({
   /** Language the resume content is written in (drives section headings). */
   locale: z.enum(locales).default("en"),
   template: z.enum(templateIds).default("professional"),
+  /** Font chosen per template; templates without an entry use their default. */
+  fonts: z.partialRecord(z.enum(templateIds), z.enum(fontIds)).default({}),
   sectionOrder: z.array(z.enum(sectionKeys)).default([...sectionKeys]),
   hiddenSections: list(z.enum(sectionKeys)),
   basics: basicsSchema.default(() => basicsSchema.parse({})),
