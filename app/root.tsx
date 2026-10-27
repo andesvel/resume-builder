@@ -8,6 +8,7 @@ import {
   useRouteLoaderData,
 } from "react-router";
 
+import { SiteFooter } from "~/components/layout/site-footer";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { resolveLocale } from "~/i18n/config";
@@ -45,7 +46,12 @@ export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <I18nProvider locale={loaderData.locale}>
       <TooltipProvider delayDuration={300}>
-        <Outlet />
+        <div className="flex min-h-dvh flex-col">
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <SiteFooter />
+        </div>
         <Toaster position="bottom-right" />
       </TooltipProvider>
     </I18nProvider>
