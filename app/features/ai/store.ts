@@ -1,7 +1,15 @@
 import { create } from "zustand";
 
 import type { Availability, LlmEngine, LoadProgress } from "./engine";
-import { chromeAvailability, createChromeEngine, createWebLlmEngine, webLlmAvailability } from "./engines.client";
+import {
+  cachedBuilds,
+  chromeAvailability,
+  createChromeEngine,
+  createWebLlmEngine,
+  detectDevice,
+  webLlmAvailability,
+} from "./engines.client";
+import type { GpuInfo } from "./webllm-engine";
 import { type DeviceInfo, isModelKey, type ModelKey, recommendedModel, variantFor } from "./models";
 
 export type EnginePreference = "auto" | "chrome" | "webllm";
@@ -12,8 +20,19 @@ type Status =
   | { kind: "ready"; engine: LlmEngine }
   | { kind: "error"; error: unknown };
 
+/** User corrections when the browser misreports the hardware; null fields mean "use what was detected". */
+export interface DeviceOverrides {
+  memoryGB: number | null;
+  f16: boolean | null;
+}
+
 interface AiState {
   availability: { chrome: Availability; webllm: Availability } | null;
+  /** What the browser reported. */
+  detected: DeviceInfo | null;
+  gpu: GpuInfo | null;
+  overrides: DeviceOverrides;
+  /** `detected` with the user's overrides applied; this is what recommendations use. */
   device: DeviceInfo | null;
   /** Concrete WebLLM build ids already in the browser cache. */
   cachedModels: string[];
@@ -28,9 +47,36 @@ interface AiState {
   resolve: () => { engine: "chrome" | "webllm"; needsDownload: boolean } | null;
   load: () => Promise<LlmEngine>;
   setPreference: (preference: EnginePreference, model?: ModelKey | null) => void;
+  setOverrides: (overrides: Partial<DeviceOverrides>) => void;
+  /** Free the loaded model's memory; it reloads from cache on next use. */
+  unload: () => void;
+  /** Re-check which builds are cached (after deleting some). */
+  refreshCache: () => Promise<void>;
 }
 
 const PREF_KEY = "ai-preference";
+const OVERRIDES_KEY = "ai-device-overrides";
+const NO_OVERRIDES: DeviceOverrides = { memoryGB: null, f16: null };
+
+function readOverrides(): DeviceOverrides {
+  try {
+    const raw = JSON.parse(localStorage.getItem(OVERRIDES_KEY) ?? "null") as Partial<DeviceOverrides> | null;
+    return {
+      memoryGB: typeof raw?.memoryGB === "number" ? raw.memoryGB : null,
+      f16: typeof raw?.f16 === "boolean" ? raw.f16 : null,
+    };
+  } catch {
+    return NO_OVERRIDES;
+  }
+}
+
+function applyOverrides(device: DeviceInfo, overrides: DeviceOverrides): DeviceInfo {
+  return {
+    ...device,
+    memoryGB: overrides.memoryGB ?? device.memoryGB,
+    f16: overrides.f16 ?? device.f16,
+  };
+}
 const MODEL_KEY = "ai-webllm-model";
 
 function readPreference(): { preference: EnginePreference; webLlmModel: ModelKey | null } {
@@ -47,6 +93,9 @@ let loading: Promise<LlmEngine> | null = null;
 
 export const useAi = create<AiState>()((set, get) => ({
   availability: null,
+  detected: null,
+  gpu: null,
+  overrides: NO_OVERRIDES,
   device: null,
   cachedModels: [],
   preference: "auto",
@@ -54,11 +103,15 @@ export const useAi = create<AiState>()((set, get) => ({
   status: { kind: "idle" },
 
   detect: async () => {
-    const [chrome, webllm] = await Promise.all([chromeAvailability(), webLlmAvailability()]);
+    const [chrome, { device, gpu }, cached] = await Promise.all([chromeAvailability(), detectDevice(), cachedBuilds().catch(() => [])]);
+    const overrides = readOverrides();
     set({
-      availability: { chrome, webllm: webllm.availability },
-      device: webllm.device,
-      cachedModels: webllm.cached,
+      availability: { chrome, webllm: webLlmAvailability(gpu, cached) },
+      detected: device,
+      gpu,
+      overrides,
+      device: applyOverrides(device, overrides),
+      cachedModels: cached,
       ...readPreference(),
     });
   },
@@ -121,6 +174,38 @@ export const useAi = create<AiState>()((set, get) => ({
         loading = null;
       });
     return loading;
+  },
+
+  setOverrides: (changes) => {
+    const overrides = { ...get().overrides, ...changes };
+    try {
+      localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+    } catch {
+      // Overrides just won't persist.
+    }
+    const { detected, status } = get();
+    // A different precision means a different build; drop the loaded one.
+    if (changes.f16 !== undefined && status.kind === "ready") status.engine.dispose();
+    set({
+      overrides,
+      device: detected ? applyOverrides(detected, overrides) : null,
+      ...(changes.f16 !== undefined ? { status: { kind: "idle" as const } } : {}),
+    });
+  },
+
+  unload: () => {
+    const { status } = get();
+    if (status.kind === "ready") status.engine.dispose();
+    set({ status: { kind: "idle" } });
+  },
+
+  refreshCache: async () => {
+    const cached = await cachedBuilds().catch(() => []);
+    const { gpu, availability } = get();
+    set({
+      cachedModels: cached,
+      availability: availability && gpu ? { ...availability, webllm: webLlmAvailability(gpu, cached) } : availability,
+    });
   },
 
   setPreference: (preference, model) => {
