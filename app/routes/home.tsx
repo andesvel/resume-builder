@@ -1,4 +1,4 @@
-import { CopyIcon, FileUpIcon, MoreHorizontalIcon, PlusIcon, SparklesIcon, Trash2Icon } from "lucide-react";
+import { ChevronDownIcon, CopyIcon, FileUpIcon, MoreHorizontalIcon, PlusIcon, SparklesIcon, Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { cloneResume, createResume, createSampleResume } from "~/features/resume/factory";
 import { getResumeRepository } from "~/features/resume/repository";
 import type { Resume, ResumeMeta } from "~/features/resume/schema";
+import { TEXT_FILE_ACCEPT } from "~/features/import/accept";
+import { setPendingImport } from "~/features/import/pending";
 import { importResumeJson } from "~/features/resume/transfer";
 import { useI18n } from "~/i18n";
 
@@ -60,7 +62,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
-  const fileInput = useRef<HTMLInputElement>(null);
+  const jsonInput = useRef<HTMLInputElement>(null);
+  const zipInput = useRef<HTMLInputElement>(null);
+  const docInput = useRef<HTMLInputElement>(null);
   const [pendingDelete, setPendingDelete] = useState<ResumeMeta | null>(null);
   const repo = getResumeRepository();
 
@@ -76,12 +80,44 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     revalidate();
   };
 
-  const onImport = async (file: File | undefined) => {
+  const onImportJson = async (file: File | undefined) => {
     if (!file) return;
     const resume = await importResumeJson(file);
     if (resume) await create(resume);
     else toast.error(t("home.importError"));
   };
+
+  const onImportLinkedIn = async (file: File | undefined) => {
+    if (!file) return;
+    const { resumeFromLinkedInZip } = await import("~/features/import/linkedin");
+    const resume = await file.arrayBuffer().then((b) => resumeFromLinkedInZip(new Uint8Array(b), locale)).catch(() => null);
+    if (resume) await create(resume);
+    else toast.error(t("home.importLinkedInError"));
+  };
+
+  /** PDF/Word goes through the assistant so the user can review the text before the AI reads it. */
+  const onImportDocument = async (file: File | undefined) => {
+    if (!file) return;
+    const { textFromFile } = await import("~/features/import/text-from-file.client");
+    const text = await textFromFile(file).catch(() => "");
+    if (!text) return void toast.error(t("home.importDocumentEmpty"));
+    const resume = createResume({ title: file.name.replace(/\.[^.]+$/, ""), locale });
+    setPendingImport(resume.id, text);
+    await create(resume);
+  };
+
+  const fileInput = (ref: React.RefObject<HTMLInputElement | null>, accept: string, onFile: (f: File | undefined) => void) => (
+    <input
+      ref={ref}
+      type="file"
+      accept={accept}
+      hidden
+      onChange={(e) => {
+        onFile(e.target.files?.[0]);
+        e.target.value = "";
+      }}
+    />
+  );
 
   const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
 
@@ -101,19 +137,30 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <Button variant="outline" onClick={() => create(createSampleResume(locale))}>
             <SparklesIcon /> {t("home.sample")}
           </Button>
-          <Button variant="outline" onClick={() => fileInput.current?.click()}>
-            <FileUpIcon /> {t("home.importJson")}
-          </Button>
-          <input
-            ref={fileInput}
-            type="file"
-            accept="application/json,.json"
-            hidden
-            onChange={(e) => {
-              void onImport(e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <FileUpIcon /> {t("home.importMenu")} <ChevronDownIcon />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-72">
+              <DropdownMenuItem onSelect={() => docInput.current?.click()} className="flex-col items-start gap-0">
+                {t("home.importDocument")}
+                <span className="text-xs text-muted-foreground">{t("home.importDocumentHint")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => zipInput.current?.click()} className="flex-col items-start gap-0">
+                {t("home.importLinkedIn")}
+                <span className="text-xs text-muted-foreground">{t("home.importLinkedInHint")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => jsonInput.current?.click()} className="flex-col items-start gap-0">
+                {t("home.importJson")}
+                <span className="text-xs text-muted-foreground">{t("home.importJsonHint")}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {fileInput(docInput, TEXT_FILE_ACCEPT, (f) => void onImportDocument(f))}
+          {fileInput(zipInput, ".zip,application/zip", (f) => void onImportLinkedIn(f))}
+          {fileInput(jsonInput, "application/json,.json", (f) => void onImportJson(f))}
         </div>
 
         {loaderData.resumes.length === 0 ? (
