@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { data, isRouteErrorResponse, Link } from "react-router";
+import { data, isRouteErrorResponse, Link, NavLink, useSearchParams } from "react-router";
 
 import { SiteHeader } from "~/components/layout/site-header";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AssistantPanel } from "~/features/ai/assistant-panel";
+import { CoverLetterEditor } from "~/features/cover-letter/cover-letter-editor";
 import { EditorToolbar } from "~/features/editor/editor-toolbar";
 import { ExportPdfItem, PreviewPane } from "~/features/pdf/preview-pane";
 import { ResumeEditor } from "~/features/editor/resume-editor";
@@ -59,6 +60,8 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
   const resume = useEditor((s) => s.resume);
   const load = useEditor((s) => s.load);
   const wide = useMediaQuery("(min-width: 1024px)");
+  const [params] = useSearchParams();
+  const view = params.get("view") === "letter" ? "letter" : "resume";
 
   useEffect(() => {
     load(loaderData.resume);
@@ -67,19 +70,23 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
 
   if (!resume || resume.id !== loaderData.resume.id) return <HydrateFallback />;
 
-  const preview = <PreviewPane resume={resume} />;
-  const content = (
-    <div className="grid content-start gap-4">
-      <AssistantPanel />
-      <ResumeEditor resume={resume} />
-    </div>
-  );
+  const preview = <PreviewPane resume={resume} kind={view} />;
+  const content =
+    view === "letter" ? (
+      <CoverLetterEditor resume={resume} />
+    ) : (
+      <div className="grid content-start gap-4">
+        <AssistantPanel />
+        <ResumeEditor resume={resume} />
+      </div>
+    );
 
   return (
     <>
       <SiteHeader />
       <main className="mx-auto grid max-w-7xl gap-4 px-4 py-4">
         <EditorToolbar resume={resume} exportItems={<ExportPdfItem resume={resume} />} />
+        <ViewSwitch view={view} />
         {wide ? (
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6">
             {content}
@@ -97,5 +104,26 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
         )}
       </main>
     </>
+  );
+}
+
+function ViewSwitch({ view }: { view: "resume" | "letter" }) {
+  const { t } = useI18n();
+  const item = (to: string, active: boolean, label: string) => (
+    <NavLink
+      to={to}
+      replace
+      className={`border-b-2 px-1 pb-2 text-sm font-medium transition-colors ${
+        active ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {label}
+    </NavLink>
+  );
+  return (
+    <nav className="flex gap-4 border-b">
+      {item("?", view === "resume", t("letter.resumeTab"))}
+      {item("?view=letter", view === "letter", t("letter.tab"))}
+    </nav>
   );
 }
