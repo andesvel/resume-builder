@@ -4,17 +4,20 @@ import type { Availability, GenerateOptions, LlmEngine, LoadProgress } from "./e
 import { parseJsonReply, stripReasoning } from "./output";
 import { webLlmModels, type WebLlmModelId } from "./models";
 
-export async function webLlmAvailability(): Promise<Availability> {
-  if (!("gpu" in navigator)) return "unsupported";
+/** WebGPU support plus which models are already in the browser cache. */
+export async function webLlmAvailability(): Promise<{ availability: Availability; cached: WebLlmModelId[] }> {
+  const unsupported = { availability: "unsupported" as const, cached: [] };
+  if (!("gpu" in navigator)) return unsupported;
   try {
     const adapter = await (navigator as Navigator & { gpu: { requestAdapter(): Promise<unknown> } }).gpu.requestAdapter();
-    if (!adapter) return "unsupported";
+    if (!adapter) return unsupported;
   } catch {
-    return "unsupported";
+    return unsupported;
   }
   const { hasModelInCache } = await import("@mlc-ai/web-llm");
-  const cached = await Promise.all(webLlmModels.map((m) => hasModelInCache(m.id).catch(() => false)));
-  return cached.some(Boolean) ? "ready" : "download";
+  const flags = await Promise.all(webLlmModels.map((m) => hasModelInCache(m.id).catch(() => false)));
+  const cached = webLlmModels.filter((_, i) => flags[i]).map((m) => m.id);
+  return { availability: cached.length ? "ready" : "download", cached };
 }
 
 /** Open-weights model on WebGPU via WebLLM, running in a Web Worker. Weights are cached by the browser. */
