@@ -6,7 +6,7 @@ const desktop = (memoryGB: number | null, f16 = true, storageMB: number | null =
 
 describe("model recommendations", () => {
   it("recommends the biggest model that fits the device", () => {
-    expect(recommendedModel(desktop(8))).toBe("qwen3.5-4b");
+    expect(recommendedModel(desktop(8))).toBe("gemma-4-e2b");
     expect(recommendedModel(desktop(6))).toBe("qwen3.5-2b");
     expect(recommendedModel(desktop(4))).toBe("qwen3-0.6b");
     expect(recommendedModel({ memoryGB: 8, f16: true, mobile: true, storageMB: null })).toBe("qwen3-0.6b");
@@ -15,6 +15,7 @@ describe("model recommendations", () => {
   it("uses f32 builds without shader-f16, which changes what fits", () => {
     expect(variantFor("qwen3.5-4b", { f16: false }).id).toBe("Qwen3.5-4B-q4f32_1-MLC");
     expect(recommendedModel(desktop(8, false))).toBe("gemma-4-e2b");
+    expect(recommendedModel(desktop(6, false))).toBe("qwen3.5-2b");
   });
 
   it("flags heavy models instead of hiding them", () => {
@@ -26,9 +27,9 @@ describe("model recommendations", () => {
 
   it("accounts for free storage, unless the model is already cached", () => {
     const device = desktop(8, true, 3000);
-    expect(tagModels(device)["qwen3.5-4b"]).toContain("noSpace");
+    expect(tagModels(device)["gemma-4-e2b"]).toContain("noSpace");
     expect(recommendedModel(device)).toBe("qwen3.5-2b");
-    expect(recommendedModel(device, ["Qwen3.5-4B-q4f16_1-MLC"])).toBe("qwen3.5-4b");
+    expect(recommendedModel(device, ["gemma-4-E2B-it-q4f16_1-MLC"])).toBe("gemma-4-e2b");
   });
 
   it("treats very small devices as limited", () => {
