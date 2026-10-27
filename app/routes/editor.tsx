@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { data, isRouteErrorResponse, Link, NavLink, useSearchParams } from "react-router";
 
-import { SiteHeader } from "~/components/layout/site-header";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -30,7 +29,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export function HydrateFallback() {
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-7xl gap-4 px-4 py-6 lg:grid-cols-2">
         <Skeleton className="h-[70vh]" />
         <Skeleton className="hidden h-[70vh] lg:block" />
@@ -44,7 +42,6 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (!isRouteErrorResponse(error)) throw error;
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-md justify-items-center gap-4 px-4 py-20 text-center">
         <p className="text-muted-foreground">{t("editor.notFound")}</p>
         <Button asChild variant="outline">
@@ -83,14 +80,13 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-7xl gap-4 px-4 py-4">
         <EditorToolbar resume={resume} exportItems={<ExportPdfItem resume={resume} />} />
         <ViewSwitch view={view} />
         {wide ? (
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6">
             {content}
-            <div className="sticky top-20 self-start">{preview}</div>
+            <div className="sticky top-24 self-start">{preview}</div>
           </div>
         ) : (
           <Tabs defaultValue="content">

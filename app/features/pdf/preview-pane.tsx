@@ -28,7 +28,7 @@ export function PreviewPane({ resume, kind = "resume" }: { resume: Resume; kind?
       {error ? (
         <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400">{t("pdfError")}</p>
       ) : null}
-      <PdfPreview blob={blob} className="max-h-[calc(100dvh-9rem)] overflow-y-auto rounded-lg bg-muted/40 p-3" />
+      <PdfPreview blob={blob} className="max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-lg bg-muted/40 p-3" />
     </div>
   );
 }

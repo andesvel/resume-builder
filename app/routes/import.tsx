@@ -2,7 +2,6 @@ import { CheckIcon, LoaderIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { data, Link, useNavigate } from "react-router";
 
-import { SiteHeader } from "~/components/layout/site-header";
 import { Button } from "~/components/ui/button";
 import { getResumeRepository } from "~/features/resume/repository";
 import { useI18n } from "~/i18n";
@@ -46,7 +45,6 @@ export default function ImportRoute({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-md justify-items-center gap-4 px-4 py-20 text-center">
         {state === "conflict" ? (
           <>
@@ -74,7 +72,6 @@ export function ErrorBoundary() {
   const { t } = useI18n();
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-md justify-items-center gap-4 px-4 py-20 text-center">
         <p className="text-muted-foreground">{t("mcp.notFound")}</p>
         <Button asChild variant="outline">
