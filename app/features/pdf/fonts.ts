@@ -53,6 +53,10 @@ const files: Record<Exclude<FontId, "helvetica" | "times">, { regular: string; b
   "source-serif-4": { regular: sourceSerif4Regular, bold: sourceSerif4Bold, italic: sourceSerif4Italic },
 };
 
+// No automatic hyphenation: words split across lines ("e-com-merce") are
+// extracted as fragments by ATS parsers. Long words wrap whole instead.
+Font.registerHyphenationCallback((word) => [word]);
+
 const registered = new Set<FontId>();
 type EmbeddedFont = keyof typeof files;
 
