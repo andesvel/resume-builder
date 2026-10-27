@@ -6,7 +6,7 @@ import { useI18n } from "~/i18n";
 import { downloadBlob, slugify } from "~/lib/download";
 
 import { PdfPreview } from "./pdf-preview";
-import { renderResumePdf } from "./render";
+import { renderResumePdf } from "./render.client";
 import { TemplatePicker } from "./template-picker";
 import { useResumePdf } from "./use-resume-pdf";
 

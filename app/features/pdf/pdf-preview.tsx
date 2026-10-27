@@ -1,7 +1,7 @@
 import { LoaderIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { loadPdfJs } from "~/lib/pdfjs";
+import { loadPdfJs } from "~/lib/pdfjs.client";
 import { cn } from "~/lib/utils";
 
 /**
