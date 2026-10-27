@@ -1,14 +1,12 @@
 import { Link, Page, Text, View } from "@react-pdf/renderer";
 
 import type { Resume, SectionKey } from "~/features/resume/schema";
+import { sidebarTones } from "~/features/resume/tones";
 import { nonEmpty } from "~/features/resume/format";
 
 import { contactItems, createContext, Heading, Sections, type Theme, visibleSections } from "./shared";
 
 const theme: Theme = {
-  font: "Helvetica",
-  boldFont: "Helvetica-Bold",
-  italicFont: "Helvetica-Oblique",
   base: 9,
   ink: "#111111",
   muted: "#555555",
@@ -30,9 +28,9 @@ export function ModernTemplate({ resume }: { resume: Resume }) {
 
   return (
     <Page size="A4" style={[ctx.s.page, { flexDirection: "row" }]}>
-      <View style={{ width: "32%", backgroundColor: "#f3f3f3", paddingVertical: 36, paddingHorizontal: 18 }}>
-        <Text style={{ fontFamily: theme.boldFont, fontSize: 17, lineHeight: 1.15 }}>{basics.name}</Text>
-        {basics.headline ? <Text style={{ color: theme.muted, marginTop: 4, fontSize: 10 }}>{basics.headline}</Text> : null}
+      <View style={{ width: "32%", backgroundColor: sidebarTones[resume.sidebarTone], paddingVertical: 36, paddingHorizontal: 18 }}>
+        <Text style={{ ...ctx.font.bold, fontSize: 17, lineHeight: 1.2 }}>{basics.name}</Text>
+        {basics.headline ? <Text style={{ color: theme.muted, marginTop: 4, fontSize: 10, lineHeight: 1.3 }}>{basics.headline}</Text> : null}
         <View style={ctx.s.section}>
           <Heading ctx={ctx}>{ctx.t("pdf.contact")}</Heading>
           {contactItems(resume).map((item, i) =>

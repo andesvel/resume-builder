@@ -6,9 +6,6 @@ import type { Resume } from "~/features/resume/schema";
 import { ContactLine, createContext, type Theme } from "./templates/shared";
 
 const theme: Theme = {
-  font: "Helvetica",
-  boldFont: "Helvetica-Bold",
-  italicFont: "Helvetica-Oblique",
   base: 10.5,
   ink: "#111111",
   muted: "#555555",
@@ -30,8 +27,8 @@ export function CoverLetterDocument({ resume }: { resume: Resume }) {
     <Document title={`${basics.name} – ${t("letter.tab")}`} author={basics.name} language={resume.locale} creator="Resume Builder" producer="Resume Builder">
       <Page size="A4" style={[ctx.s.page, { paddingVertical: 56, paddingHorizontal: 64, lineHeight: 1.5 }]}>
         <View style={{ marginBottom: 28 }}>
-          <Text style={{ fontFamily: theme.boldFont, fontSize: 18, lineHeight: 1.2 }}>{basics.name}</Text>
-          {basics.headline ? <Text style={{ color: theme.muted }}>{basics.headline}</Text> : null}
+          <Text style={{ ...ctx.font.bold, fontSize: 18, lineHeight: 1.2 }}>{basics.name}</Text>
+          {basics.headline ? <Text style={{ color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
           <ContactLine ctx={ctx} style={{ marginTop: 4, fontSize: 9, color: theme.muted }} />
         </View>
         <Text style={{ color: theme.muted, marginBottom: 16 }}>{date}</Text>
@@ -48,7 +45,7 @@ export function CoverLetterDocument({ resume }: { resume: Resume }) {
           </Text>
         ))}
         <Text style={{ marginTop: 14 }}>{t("letter.closing")}</Text>
-        <Text style={{ fontFamily: theme.boldFont, marginTop: 4 }}>{basics.name}</Text>
+        <Text style={{ ...ctx.font.bold, marginTop: 4 }}>{basics.name}</Text>
       </Page>
     </Document>
   );
