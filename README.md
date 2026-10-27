@@ -13,6 +13,48 @@ Local-first resume builder. Write who you are in plain language and get a struct
 - **i18n.** The UI is in English and Spanish, and each resume has its own content language for headings and dates.
 - **Light/dark theme** in a monochrome style, with Tailwind colors for status only.
 
+## Use it from an AI agent (MCP)
+
+The Worker exposes a [Model Context Protocol](https://modelcontextprotocol.io) server at `/mcp`. It lets an agent such as Claude Code, Codex or OpenCode do everything the UI does: create a resume, fill or edit any field, add, move or remove entries, change the template, font or sidebar color, write the cover letter, import a JSON or LinkedIn export, and export JSON or PDF. The agent does the writing itself; the small local model is not involved.
+
+- **Auth.** The endpoint requires `Authorization: Bearer <MCP_TOKEN>` and refuses every request when the secret isn't set.
+- **Where data lives.** Agent-made resumes are stored as server-side drafts (a SQLite Durable Object) and expire 7 days after their last change. They reach your browser only when you open the draft's **import link** (`/import/<id>`).
+- **Capability URLs.** Import links and PDF links (`/api/drafts/<id>/resume.pdf`) need no token; the random id is the access. Share them accordingly.
+
+Set the token (once per environment):
+
+```bash
+openssl rand -base64 32
+```
+
+```bash
+pnpm wrangler secret put MCP_TOKEN
+```
+
+For local development, put `MCP_TOKEN=<value>` in `.dev.vars`.
+
+Connect your agent (replace the URL and token):
+
+```bash
+claude mcp add --transport http resume-builder https://resume-builder.<subdomain>.workers.dev/mcp --header "Authorization: Bearer $RESUME_BUILDER_TOKEN"
+```
+
+- **Codex** (`~/.codex/config.toml`):
+
+  ```toml
+  [mcp_servers.resume-builder]
+  url = "https://resume-builder.<subdomain>.workers.dev/mcp"
+  bearer_token_env_var = "RESUME_BUILDER_TOKEN"
+  ```
+
+- **OpenCode** (`opencode.json`):
+
+  ```json
+  { "mcp": { "resume-builder": { "type": "remote", "url": "https://resume-builder.<subdomain>.workers.dev/mcp", "headers": { "Authorization": "Bearer {env:RESUME_BUILDER_TOKEN}" } } } }
+  ```
+
+Then ask, for example: "Create my resume with this info…, use the minimal template with EB Garamond and download the PDF."
+
 ## How the AI part stays reliable with small models
 
 On-device models are small, so the model only does what it is good at. The rest is deterministic code in `app/features/ai/`:
@@ -50,7 +92,8 @@ app/
     import/          PDF/Word text, LinkedIn zip, CSV
     cover-letter/    draft prompt and editor
   i18n/              typed en/es dictionaries
-workers/app.ts       Worker entry
+  mcp/               MCP tools, editing operations, draft store (Durable Object), server-side PDF
+workers/app.ts       Worker entry: /mcp, draft PDFs, then React Router
 ```
 
 - **Persistence is swappable.** The UI only uses `ResumeRepository`. Today that is IndexedDB. Supporting accounts means adding an implementation backed by D1 behind auth, with no UI changes.

@@ -11,6 +11,14 @@ Ideas parked after the MVP. Check items off as they land.
 - [ ] **OCR for scanned PDFs** with runonweb's `ocr` (PP-OCRv6, ~31 MB)
 - [ ] Re-run extraction over an imported PDF/Word file section by section, with a diff to accept or reject changes
 
+## MCP / agents
+
+- [ ] **Live pairing**: the app shows a code and an agent edits the open resume in real time (Durable Object + WebSocket), with no import link
+- [ ] **Local stdio MCP** (`npx resume-builder-mcp`) that works offline and writes a `.json` to import
+- [ ] Server-side PDF export in `pnpm dev` (today it needs a build: `pnpm preview`)
+- [ ] Per-user tokens / OAuth once accounts exist; drafts scoped per user
+- [ ] "Send to agent" from the editor (needs auth so the upload endpoint isn't open)
+
 ## Product / scale
 
 - [ ] **Accounts** (e.g. Better Auth) + **D1** `ResumeRepository` so users can keep several versions in sync across devices; IndexedDB stays as the offline cache
@@ -29,7 +37,7 @@ Ideas parked after the MVP. Check items off as they land.
 
 ## AI quality
 
-- [ ] Evaluate larger local models (Qwen3 4B, Gemma) behind a "quality" setting
+- [ ] Evaluate Qwen3 4B, Qwen3.5 4B/9B and Qwen3 8B on the extraction set (they need more browser storage than our test pane allowed) and add them to the recommendation order if they beat Gemma 4 E2B
 - [ ] Per-pass few-shot examples tuned on real inputs; a small offline eval set
 - [ ] Support removing things in natural language ("remove the Acme job")
 - [ ] Rewrite a highlight on request (action verbs, metrics prompts), never adding facts
