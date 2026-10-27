@@ -24,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Features } from "~/features/landing/features";
+import { SamplePreview } from "~/features/landing/sample-preview";
 import { cloneResume, createResume, createSampleResume } from "~/features/resume/factory";
 import { getResumeRepository } from "~/features/resume/repository";
 import type { Resume, ResumeMeta } from "~/features/resume/schema";
@@ -124,12 +126,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto grid max-w-5xl gap-8 px-4 py-10">
-        <section className="grid gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight">{t("home.title")}</h1>
-          <p className="text-muted-foreground">{t("app.tagline")}</p>
-        </section>
-
+      <main className="mx-auto grid max-w-5xl gap-16 px-4 py-12 sm:py-16">
+        <section className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+          <div className="grid gap-6">
+            <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">{t("landing.title")}</h1>
+            <p className="max-w-prose text-lg text-pretty text-muted-foreground">{t("landing.subtitle")}</p>
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => create(createResume({ title: t("home.untitled"), locale }))}>
             <PlusIcon /> {t("home.new")}
@@ -162,10 +163,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           {fileInput(zipInput, ".zip,application/zip", (f) => void onImportLinkedIn(f))}
           {fileInput(jsonInput, "application/json,.json", (f) => void onImportJson(f))}
         </div>
+          </div>
+          <div className="mx-auto w-full max-w-sm lg:max-w-none">
+            <SamplePreview />
+          </div>
+        </section>
 
-        {loaderData.resumes.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">{t("home.empty")}</p>
-        ) : (
+        {loaderData.resumes.length > 0 ? (
+          <section aria-labelledby="resumes-title" className="grid gap-4">
+          <h2 id="resumes-title" className="text-2xl font-semibold tracking-tight">{t("home.title")}</h2>
           <ul className="grid gap-3 sm:grid-cols-2">
             {loaderData.resumes.map((r) => (
               <li key={r.id}>
@@ -203,8 +209,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </li>
             ))}
           </ul>
-        )}
-        <p className="text-xs text-muted-foreground">{t("home.localOnly")}</p>
+          </section>
+        ) : null}
+
+        <Features />
       </main>
 
       <AlertDialog open={pendingDelete !== null} onOpenChange={(open) => !open && setPendingDelete(null)}>
