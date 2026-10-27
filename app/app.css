@@ -139,6 +139,9 @@
 @layer base {
   :root {
     interpolate-size: allow-keywords;
+    /* Reserve the scrollbar's width on every page, so switching between short
+       and long pages doesn't shift the layout sideways. */
+    scrollbar-gutter: stable;
   }
 }
 
