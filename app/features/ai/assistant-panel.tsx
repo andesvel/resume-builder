@@ -1,4 +1,4 @@
-import { CircleHelpIcon, CpuIcon, LoaderIcon, PaperclipIcon, SparklesIcon } from "lucide-react";
+import { CircleHelpIcon, CpuIcon, LoaderIcon, PaperclipIcon, SparklesIcon, TriangleAlertIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -17,6 +17,8 @@ import { ConsentDialog } from "./consent-dialog";
 import { applyFreeText } from "./extract";
 import { isEmptySummary } from "./merge";
 import { ModelPicker } from "./model-picker";
+import { isLimitedDevice } from "./models";
+import { useAi } from "./store";
 import { describeSummary } from "./summary";
 import { useLocalAi } from "./use-local-ai";
 
@@ -50,6 +52,7 @@ function Tips() {
 export function AssistantPanel() {
   const { t } = useI18n();
   const { getEngine, consent, status, supported } = useLocalAi();
+  const limited = useAi((s) => (s.device ? isLimitedDevice(s.device) : false));
   const [text, setText] = useState("");
   const [working, setWorking] = useState(false);
   const [step, setStep] = useState<[number, number] | null>(null);
@@ -134,6 +137,13 @@ export function AssistantPanel() {
         </CardAction>
       </CardHeader>
       <CardContent className="grid gap-2">
+        {limited ? (
+          <Alert className="border-amber-500/40 bg-amber-500/5 text-amber-900 dark:text-amber-200">
+            <TriangleAlertIcon />
+            <AlertTitle>{t("assistant.limitedTitle")}</AlertTitle>
+            <AlertDescription>{t("assistant.limitedBody")}</AlertDescription>
+          </Alert>
+        ) : null}
         <Textarea
           ref={textarea}
           rows={4}
