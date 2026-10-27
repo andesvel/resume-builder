@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { data, isRouteErrorResponse, Link, NavLink, useSearchParams } from "react-router";
 
-import { SiteHeader } from "~/components/layout/site-header";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -24,13 +23,12 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  return [{ title: `${loaderData?.resume.title ?? "Editor"} · Resume Builder` }];
+  return [{ title: `${loaderData?.resume.title ?? "Editor"} · Resume Builder` }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export function HydrateFallback() {
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-7xl gap-4 px-4 py-6 lg:grid-cols-2">
         <Skeleton className="h-[70vh]" />
         <Skeleton className="hidden h-[70vh] lg:block" />
@@ -44,11 +42,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (!isRouteErrorResponse(error)) throw error;
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-md justify-items-center gap-4 px-4 py-20 text-center">
         <p className="text-muted-foreground">{t("editor.notFound")}</p>
         <Button asChild variant="outline">
-          <Link to="/">{t("common.back")}</Link>
+          <Link to="/" viewTransition>{t("common.back")}</Link>
         </Button>
       </main>
     </>
@@ -83,7 +80,6 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <SiteHeader />
       <main className="mx-auto grid max-w-7xl gap-4 px-4 py-4">
         <EditorToolbar resume={resume} exportItems={<ExportPdfItem resume={resume} />} />
         <ViewSwitch view={view} />
@@ -113,6 +109,7 @@ function ViewSwitch({ view }: { view: "resume" | "letter" }) {
     <NavLink
       to={to}
       replace
+      viewTransition
       className={`border-b-2 px-1 pb-2 text-sm font-medium transition-colors ${
         active ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
       }`}

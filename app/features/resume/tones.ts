@@ -4,7 +4,7 @@
  */
 export const sidebarTones = {
   neutral: "#f5f5f5",
-  stone: "#f5f5f4",
+  orange: "#ffedd5",
   sky: "#e0f2fe",
   blue: "#dbeafe",
   emerald: "#d1fae5",

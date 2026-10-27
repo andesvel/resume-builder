@@ -131,3 +131,57 @@
     @apply font-sans;
     }
 }
+/*
+ * Motion: short and quiet. Pages cross-fade with a 6px rise while the header
+ * and footer stay put; entries expand instead of jumping. Everything is off
+ * for people who ask for reduced motion.
+ */
+@layer base {
+  :root {
+    interpolate-size: allow-keywords;
+    /* Reserve the scrollbar's width on every page, so switching between short
+       and long pages doesn't shift the layout sideways. */
+    scrollbar-gutter: stable;
+  }
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: page-out 120ms ease-out both;
+  }
+  ::view-transition-new(root) {
+    animation: page-in 220ms cubic-bezier(0.2, 0, 0, 1) 60ms both;
+  }
+
+  details::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 200ms cubic-bezier(0.2, 0, 0, 1),
+      content-visibility 200ms allow-discrete;
+  }
+  details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

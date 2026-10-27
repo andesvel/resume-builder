@@ -26,11 +26,11 @@ const TAG_LABEL: Record<ModelTag, MessageKey> = {
 };
 
 const TAG_STYLE: Record<ModelTag, string> = {
-  recommended: "border-emerald-500/40 text-emerald-700 dark:text-emerald-400",
+  recommended: "text-emerald-700 dark:text-emerald-400",
   lightest: "",
-  heavy: "border-amber-500/40 text-amber-700 dark:text-amber-400",
-  tooHeavy: "border-red-500/40 text-red-700 dark:text-red-400",
-  noSpace: "border-red-500/40 text-red-700 dark:text-red-400",
+  heavy: "text-amber-700 dark:text-amber-400",
+  tooHeavy: "text-red-700 dark:text-red-400",
+  noSpace: "text-red-700 dark:text-red-400",
 };
 
 const gb = (mb: number) => `${(mb / 1024).toFixed(1)} GB`;
@@ -58,8 +58,8 @@ export function ModelPicker() {
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel>{t("assistant.modelChoice")}</DropdownMenuLabel>
         {device && isLimitedDevice(device) ? (
-          <p className="mx-2 mb-1 flex gap-2 rounded-md bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-300">
-            <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
+          <p className="mx-2 mb-1 flex gap-2 text-xs text-muted-foreground">
+            <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
             {t("assistant.limitedBody")}
           </p>
         ) : null}
