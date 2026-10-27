@@ -9,6 +9,7 @@ import { FontPicker } from "./font-picker";
 import { PdfPreview } from "./pdf-preview";
 import { renderCoverLetterPdf, renderResumePdf } from "./render.client";
 import { TemplatePicker } from "./template-picker";
+import { TonePicker } from "./tone-picker";
 import { useResumePdf } from "./use-resume-pdf";
 
 export function PreviewPane({ resume, kind = "resume" }: { resume: Resume; kind?: "resume" | "letter" }) {
@@ -21,6 +22,7 @@ export function PreviewPane({ resume, kind = "resume" }: { resume: Resume; kind?
         <div className="flex flex-wrap items-center gap-2">
           <TemplatePicker value={resume.template} />
           <FontPicker resume={resume} />
+          {resume.template === "modern" ? <TonePicker resume={resume} /> : null}
         </div>
       ) : null}
       {error ? (

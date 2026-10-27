@@ -172,6 +172,8 @@ export const en = {
     hint: "The draft only uses facts from your resume. Review every sentence before sending.",
   },
   templates: {
+    sidebarTone: "Sidebar color",
+    tones: { neutral: "Gray", stone: "Stone", sky: "Sky", blue: "Blue", emerald: "Emerald", amber: "Amber", rose: "Rose", violet: "Violet" },
     font: "Font",
     fontSans: "Sans serif",
     fontSerif: "Serif",
