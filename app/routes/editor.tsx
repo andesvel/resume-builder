@@ -48,7 +48,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <main className="mx-auto grid max-w-md justify-items-center gap-4 px-4 py-20 text-center">
         <p className="text-muted-foreground">{t("editor.notFound")}</p>
         <Button asChild variant="outline">
-          <Link to="/">{t("common.back")}</Link>
+          <Link to="/" viewTransition>{t("common.back")}</Link>
         </Button>
       </main>
     </>
@@ -113,6 +113,7 @@ function ViewSwitch({ view }: { view: "resume" | "letter" }) {
     <NavLink
       to={to}
       replace
+      viewTransition
       className={`border-b-2 px-1 pb-2 text-sm font-medium transition-colors ${
         active ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
       }`}

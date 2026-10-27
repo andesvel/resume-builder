@@ -72,7 +72,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   const create = async (resume: Resume) => {
     await repo.save(resume);
-    navigate(`/r/${resume.id}`);
+    navigate(`/r/${resume.id}`, { viewTransition: true });
   };
 
   const duplicate = async (id: string) => {
@@ -128,7 +128,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <SiteHeader />
       <main className="mx-auto grid max-w-5xl gap-16 px-4 py-12 sm:py-16">
         <section className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
-          <div className="grid gap-6">
+          <div className="grid gap-6 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500">
             <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">{t("landing.title")}</h1>
             <p className="max-w-prose text-lg text-pretty text-muted-foreground">{t("landing.subtitle")}</p>
         <div className="flex flex-wrap gap-2">
@@ -164,7 +164,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           {fileInput(jsonInput, "application/json,.json", (f) => void onImportJson(f))}
         </div>
           </div>
-          <div className="mx-auto w-full max-w-sm lg:max-w-none">
+          <div className="mx-auto w-full max-w-sm motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:delay-100 motion-safe:duration-500 motion-safe:fill-mode-both lg:max-w-none">
             <SamplePreview />
           </div>
         </section>
@@ -178,7 +178,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <Card className="relative transition-colors hover:bg-accent/40">
                   <CardHeader>
                     <CardTitle>
-                      <Link to={`/r/${r.id}`} className="after:absolute after:inset-0">
+                      <Link to={`/r/${r.id}`} viewTransition className="after:absolute after:inset-0">
                         {r.title || t("home.untitled")}
                       </Link>
                     </CardTitle>
