@@ -140,3 +140,7 @@ Branch protection is defined in `.github/rulesets/protect-main-dev.json`. GitHub
 ```bash
 gh api -X POST repos/andesvel/resume-builder/rulesets --input .github/rulesets/protect-main-dev.json
 ```
+
+## License
+
+[MIT](LICENSE)
