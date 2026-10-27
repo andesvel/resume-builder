@@ -30,6 +30,8 @@ export type Styles = Record<StyleName, Style>;
 
 export function createStyles(theme: Theme): Styles {
   return StyleSheet.create({
+    // react-pdf resolves an inherited unitless lineHeight against the page's
+    // font size, so larger text (name, headline) must set its own.
     page: { fontFamily: theme.font, fontSize: theme.base, color: theme.ink, lineHeight: 1.35 },
     section: { marginTop: theme.sectionGap },
     heading: { fontFamily: theme.boldFont, ...theme.heading },
