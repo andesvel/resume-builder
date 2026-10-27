@@ -31,7 +31,7 @@ export function CoverLetterDocument({ resume }: { resume: Resume }) {
       <Page size="A4" style={[ctx.s.page, { paddingVertical: 56, paddingHorizontal: 64, lineHeight: 1.5 }]}>
         <View style={{ marginBottom: 28 }}>
           <Text style={{ fontFamily: theme.boldFont, fontSize: 18, lineHeight: 1.2 }}>{basics.name}</Text>
-          {basics.headline ? <Text style={{ color: theme.muted }}>{basics.headline}</Text> : null}
+          {basics.headline ? <Text style={{ color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
           <ContactLine ctx={ctx} style={{ marginTop: 4, fontSize: 9, color: theme.muted }} />
         </View>
         <Text style={{ color: theme.muted, marginBottom: 16 }}>{date}</Text>
