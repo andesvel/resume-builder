@@ -154,6 +154,7 @@ export const es: Messages = {
     modelLightest: "El más liviano",
     modelHeavy: "Pesado",
     modelTooHeavy: "Muy pesado para tu dispositivo",
+    modelNoSpace: "Sin espacio en el navegador",
     modelAutoHint: "La IA integrada de Chrome si está disponible; si no, {model}",
     limitedTitle: "Este dispositivo tiene poca memoria",
     limitedBody: "Los modelos locales probablemente irán lentos o fallarán aquí. Funciona mejor llenar el formulario a mano o usar un agente de IA vía MCP.",

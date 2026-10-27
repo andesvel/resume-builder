@@ -22,6 +22,7 @@ const TAG_LABEL: Record<ModelTag, MessageKey> = {
   lightest: "assistant.modelLightest",
   heavy: "assistant.modelHeavy",
   tooHeavy: "assistant.modelTooHeavy",
+  noSpace: "assistant.modelNoSpace",
 };
 
 const TAG_STYLE: Record<ModelTag, string> = {
@@ -29,6 +30,7 @@ const TAG_STYLE: Record<ModelTag, string> = {
   lightest: "",
   heavy: "border-amber-500/40 text-amber-700 dark:text-amber-400",
   tooHeavy: "border-red-500/40 text-red-700 dark:text-red-400",
+  noSpace: "border-red-500/40 text-red-700 dark:text-red-400",
 };
 
 const gb = (mb: number) => `${(mb / 1024).toFixed(1)} GB`;
@@ -42,7 +44,8 @@ export function ModelPicker() {
   const model = useAi((s) => s.webLlmModel);
   const setPreference = useAi((s) => s.setPreference);
   const value = preference === "webllm" && model ? model : preference;
-  const tags = device ? tagModels(device) : null;
+  const cached = useAi((s) => s.cachedModels);
+  const tags = device ? tagModels(device, cached) : null;
   const webllmOff = availability?.webllm === "unsupported";
 
   return (
@@ -72,7 +75,7 @@ export function ModelPicker() {
             {t("assistant.modelAuto")}
             {device ? (
               <span className="text-xs text-muted-foreground">
-                {t("assistant.modelAutoHint", { model: variantFor(recommendedModel(device), device).name })}
+                {t("assistant.modelAutoHint", { model: variantFor(recommendedModel(device, cached), device).name })}
               </span>
             ) : null}
           </DropdownMenuRadioItem>
@@ -83,7 +86,7 @@ export function ModelPicker() {
           {webLlmModels.map((m) => {
             const variant = device ? variantFor(m.key, device) : null;
             return (
-              <DropdownMenuRadioItem key={m.key} value={m.key} disabled={webllmOff} className="flex-col items-start gap-1">
+              <DropdownMenuRadioItem key={m.key} value={m.key} disabled={webllmOff || tags?.[m.key].includes("noSpace")} className="flex-col items-start gap-1">
                 <span>
                   {m.name}
                   {variant ? <span className="text-muted-foreground"> · {gb(variant.sizeMB)}</span> : null}
