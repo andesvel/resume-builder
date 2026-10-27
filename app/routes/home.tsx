@@ -184,7 +184,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     <CardAction className="relative z-10">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon-sm" aria-label="Actions">
+                          <Button variant="ghost" size="icon-sm" aria-label={t("home.actions")}>
                             <MoreHorizontalIcon />
                           </Button>
                         </DropdownMenuTrigger>
