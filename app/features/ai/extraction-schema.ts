@@ -40,9 +40,9 @@ export const extractionSchema = z.object({
 export type Extraction = z.infer<typeof extractionSchema>;
 
 /** JSON Schema handed to the engines for constrained decoding. */
-export function extractionJsonSchema(): object {
-  const { $schema: _ignored, ...schema } = z.toJSONSchema(extractionSchema) as Record<string, unknown>;
-  return schema;
+export function extractionJsonSchema(schema: z.ZodType = extractionSchema): object {
+  const { $schema: _ignored, ...json } = z.toJSONSchema(schema) as Record<string, unknown>;
+  return json;
 }
 
 /** Models sometimes return nulls or wrong types; coerce what we can, drop the rest. */

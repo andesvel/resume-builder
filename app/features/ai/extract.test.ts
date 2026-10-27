@@ -29,6 +29,22 @@ describe("applyFreeText", () => {
   });
 });
 
+describe("follow-up inputs", () => {
+  it("don't overwrite profile fields without a cue", async () => {
+    const base = createResume({ basics: { name: "Andres Velez", location: "Medellín" } });
+    const engine = fakeEngine({ name: "Globant", location: "Globant", experience: [{ company: "Globant", endDate: "2020-02" }] });
+    const { resume } = await applyFreeText(engine, base, "En realidad salí de Globant en marzo de 2020");
+    expect(resume.basics).toMatchObject({ name: "Andres Velez", location: "Medellín" });
+    expect(resume.experience[0]?.endDate).toBe("2020-03");
+  });
+
+  it("replace a field when the text is about it", async () => {
+    const base = createResume({ basics: { location: "Medellín" } });
+    const { resume } = await applyFreeText(fakeEngine({ location: "Madrid, España" }), base, "Ahora vivo en Madrid, España");
+    expect(resume.basics.location).toBe("Madrid, España");
+  });
+});
+
 describe("chunkText", () => {
   it("splits long text under the limit", () => {
     const text = Array.from({ length: 50 }, (_, i) => `Sentence number ${i} about work.`).join(" ");

@@ -34,6 +34,12 @@ describe("mergeExtraction", () => {
     expect(summary.updated).toEqual({ experience: 1 });
   });
 
+  it("keeps the role of an existing job but corrects its dates", () => {
+    const base = createResume({ experience: [{ company: "Globant", role: "Frontend developer", startDate: "2018-01", endDate: "2020" }] });
+    const { resume } = mergeExtraction(base, { experience: [{ company: "Globant", role: "Led the migration", endDate: "2020-03" }] });
+    expect(resume.experience[0]).toMatchObject({ role: "Frontend developer", endDate: "2020-03" });
+  });
+
   it("corrects scalar fields but never blanks them", () => {
     const base = createResume({ basics: { name: "Jon", email: "a@b.co" } });
     const { resume } = mergeExtraction(base, { name: "John", email: "  " });
