@@ -138,8 +138,8 @@ export function AssistantPanel() {
       </CardHeader>
       <CardContent className="grid gap-2">
         {limited ? (
-          <Alert className="border-amber-500/40 bg-amber-500/5 text-amber-900 dark:text-amber-200">
-            <TriangleAlertIcon />
+          <Alert>
+            <TriangleAlertIcon className="text-amber-600 dark:text-amber-400" />
             <AlertTitle>{t("assistant.limitedTitle")}</AlertTitle>
             <AlertDescription>{t("assistant.limitedBody")}</AlertDescription>
           </Alert>

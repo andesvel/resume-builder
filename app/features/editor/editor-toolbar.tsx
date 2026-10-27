@@ -1,5 +1,17 @@
-import { ArrowLeftIcon, CheckIcon, CircleAlertIcon, DownloadIcon, LoaderIcon, Redo2Icon, Undo2Icon } from "lucide-react";
-import { Link } from "react-router";
+import { ArrowLeftIcon, CheckIcon, CircleAlertIcon, DownloadIcon, LoaderIcon, Redo2Icon, Trash2Icon, Undo2Icon } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -12,7 +24,8 @@ import { Input } from "~/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import type { Resume } from "~/features/resume/schema";
-import { useEditor } from "~/features/resume/store";
+import { getResumeRepository } from "~/features/resume/repository";
+import { cancelPendingSave, useEditor } from "~/features/resume/store";
 import { exportResumeJson } from "~/features/resume/transfer";
 import { useI18n } from "~/i18n";
 import { isLocale } from "~/i18n/config";
@@ -55,11 +68,19 @@ export function EditorToolbar({ resume, exportItems }: { resume: Resume; exportI
   const redo = useEditor((s) => s.redo);
   const canUndo = useEditor((s) => s.past.length > 0);
   const canRedo = useEditor((s) => s.future.length > 0);
+  const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const remove = async () => {
+    cancelPendingSave();
+    await getResumeRepository().delete(resume.id);
+    navigate("/resumes", { viewTransition: true });
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button variant="ghost" size="icon" asChild aria-label={t("common.back")}>
-        <Link to="/">
+        <Link to="/" viewTransition>
           <ArrowLeftIcon />
         </Link>
       </Button>
@@ -86,6 +107,9 @@ export function EditorToolbar({ resume, exportItems }: { resume: Resume; exportI
             <SelectItem value="es">ES</SelectItem>
           </SelectContent>
         </Select>
+        <IconAction label={t("common.delete")} onClick={() => setConfirmDelete(true)}>
+          <Trash2Icon />
+        </IconAction>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm">
@@ -98,6 +122,20 @@ export function EditorToolbar({ resume, exportItems }: { resume: Resume; exportI
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("home.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("home.deleteBody", { title: resume.title })}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={remove}>
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

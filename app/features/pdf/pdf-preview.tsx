@@ -32,6 +32,8 @@ export function PdfPreview({ blob, className }: { blob: Blob | null; className?:
       const task = pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) });
       const doc = await task.promise;
       const ratio = window.devicePixelRatio || 1;
+      // Fade in only the first render; later re-renders swap silently while typing.
+      const first = el.childElementCount === 0;
       const pages: HTMLCanvasElement[] = [];
       for (let n = 1; n <= doc.numPages; n++) {
         const page = await doc.getPage(n);
@@ -40,7 +42,7 @@ export function PdfPreview({ blob, className }: { blob: Blob | null; className?:
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        canvas.className = "w-full rounded-sm bg-white shadow-sm ring-1 ring-border";
+        canvas.className = `w-full rounded-sm bg-white shadow-sm ring-1 ring-border${first ? " motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300" : ""}`;
         await page.render({ canvas, viewport }).promise;
         pages.push(canvas);
       }

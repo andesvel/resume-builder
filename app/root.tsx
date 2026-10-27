@@ -8,6 +8,8 @@ import {
   useRouteLoaderData,
 } from "react-router";
 
+import { SiteFooter } from "~/components/layout/site-footer";
+import { SiteHeader } from "~/components/layout/site-header";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { resolveLocale } from "~/i18n/config";
@@ -18,7 +20,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 export function loader({ request }: Route.LoaderArgs) {
-  return { locale: resolveLocale(request) };
+  return { locale: resolveLocale(request), origin: new URL(request.url).origin };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -28,6 +30,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light dark" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Meta />
         <Links />
@@ -45,7 +48,13 @@ export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <I18nProvider locale={loaderData.locale}>
       <TooltipProvider delayDuration={300}>
-        <Outlet />
+        <div className="flex min-h-dvh flex-col">
+          <SiteHeader />
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <SiteFooter />
+        </div>
         <Toaster position="bottom-right" />
       </TooltipProvider>
     </I18nProvider>

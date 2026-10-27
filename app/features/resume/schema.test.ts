@@ -21,6 +21,10 @@ describe("resume schema", () => {
     expect(parseResume("nope")).toBeNull();
   });
 
+  it("falls back to gray for retired sidebar tones", () => {
+    expect(parseResume({ sidebarTone: "stone" })?.sidebarTone).toBe("neutral");
+  });
+
   it("builds a valid sample in both languages", () => {
     expect(parseResume(createSampleResume("en"))).not.toBeNull();
     expect(createSampleResume("es").locale).toBe("es");
