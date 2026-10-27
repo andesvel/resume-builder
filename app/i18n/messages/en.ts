@@ -180,6 +180,14 @@ export const en = {
     exportPdf: "Download letter PDF",
     hint: "The draft only uses facts from your resume. Review every sentence before sending.",
   },
+  mcp: {
+    importing: "Saving “{title}” to this browser…",
+    conflictTitle: "You have a newer local version",
+    conflictBody: "“{title}” was edited here after the agent’s last change. Replace it with the agent’s version?",
+    keepLocal: "Keep mine",
+    useAgent: "Use the agent’s version",
+    notFound: "This link expired or doesn’t exist. Ask the agent for a new one.",
+  },
   templates: {
     sidebarTone: "Sidebar color",
     tones: { neutral: "Gray", stone: "Stone", sky: "Sky", blue: "Blue", emerald: "Emerald", amber: "Amber", rose: "Rose", violet: "Violet" },

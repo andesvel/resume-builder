@@ -4,6 +4,14 @@
   "main": "./workers/app.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS"
+  },
+  // Server-side drafts written by agents over MCP (see app/mcp).
+  "durable_objects": {
+    "bindings": [{ "name": "DRAFTS", "class_name": "DraftStore" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DraftStore"] }],
   "observability": {
     "enabled": true
   },

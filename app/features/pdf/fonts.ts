@@ -54,10 +54,10 @@ const files: Record<Exclude<FontId, "helvetica" | "times">, { regular: string; b
 };
 
 const registered = new Set<FontId>();
+type EmbeddedFont = keyof typeof files;
 
-function register(id: keyof typeof files) {
+function register(id: EmbeddedFont, f: { regular: string; bold: string; italic: string } = files[id]) {
   if (registered.has(id)) return;
-  const f = files[id];
   Font.register({
     family: fontMeta[id].label,
     fonts: [
@@ -73,11 +73,23 @@ function register(id: keyof typeof files) {
 export function fontFaces(id: FontId): FontFaces {
   const native = builtIn[id];
   if (native) return native;
-  register(id as keyof typeof files);
+  register(id as EmbeddedFont);
   const family = fontMeta[id].label;
   return {
     regular: { fontFamily: family },
     bold: { fontFamily: family, fontWeight: 700 },
     italic: { fontFamily: family, fontStyle: "italic" },
   };
+}
+
+/**
+ * Register a font from sources resolved by the caller. The Worker can't fetch
+ * its own asset URLs, so it reads the files through the ASSETS binding and
+ * passes data URLs.
+ */
+export async function preloadFont(id: FontId, toSource: (assetUrl: string) => Promise<string>) {
+  if (registered.has(id) || id in builtIn) return;
+  const f = files[id as EmbeddedFont];
+  const [regular, bold, italic] = await Promise.all([toSource(f.regular), toSource(f.bold), toSource(f.italic)]);
+  register(id as EmbeddedFont, { regular, bold, italic });
 }
