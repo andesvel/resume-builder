@@ -3,6 +3,7 @@ import { z } from "zod";
 import { locales } from "~/i18n/config";
 
 import { fontIds } from "./fonts";
+import { toneIds } from "./tones";
 
 /**
  * Single source of truth for resume data. Every field has a default so that
@@ -118,6 +119,8 @@ export const resumeSchema = z.object({
   template: z.enum(templateIds).default("professional"),
   /** Font chosen per template; templates without an entry use their default. */
   fonts: z.partialRecord(z.enum(templateIds), z.enum(fontIds)).default({}),
+  /** Sidebar tint of the Modern template. */
+  sidebarTone: z.enum(toneIds).default("neutral"),
   sectionOrder: z.array(z.enum(sectionKeys)).default([...sectionKeys]),
   hiddenSections: list(z.enum(sectionKeys)),
   basics: basicsSchema.default(() => basicsSchema.parse({})),
