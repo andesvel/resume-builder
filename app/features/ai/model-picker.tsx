@@ -1,5 +1,6 @@
-import { CpuIcon } from "lucide-react";
+import { CpuIcon, TriangleAlertIcon } from "lucide-react";
 
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -7,21 +8,45 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { useI18n } from "~/i18n";
+import { type MessageKey, useI18n } from "~/i18n";
+import { cn } from "~/lib/utils";
 
-import { webLlmModels, type WebLlmModelId } from "./models";
+import { isLimitedDevice, isModelKey, type ModelTag, recommendedModel, tagModels, variantFor, webLlmModels } from "./models";
 import { useAi } from "./store";
 
-/** Pick the local backend: automatic, Gemini Nano (Chrome) or a WebLLM model. */
+const TAG_LABEL: Record<ModelTag, MessageKey> = {
+  recommended: "assistant.modelRecommended",
+  lightest: "assistant.modelLightest",
+  heavy: "assistant.modelHeavy",
+  tooHeavy: "assistant.modelTooHeavy",
+  noSpace: "assistant.modelNoSpace",
+};
+
+const TAG_STYLE: Record<ModelTag, string> = {
+  recommended: "border-emerald-500/40 text-emerald-700 dark:text-emerald-400",
+  lightest: "",
+  heavy: "border-amber-500/40 text-amber-700 dark:text-amber-400",
+  tooHeavy: "border-red-500/40 text-red-700 dark:text-red-400",
+  noSpace: "border-red-500/40 text-red-700 dark:text-red-400",
+};
+
+const gb = (mb: number) => `${(mb / 1024).toFixed(1)} GB`;
+
+/** Pick the local backend: automatic, Gemini Nano (Chrome) or a WebLLM model, labelled for this device. */
 export function ModelPicker() {
   const { t } = useI18n();
   const availability = useAi((s) => s.availability);
+  const device = useAi((s) => s.device);
   const preference = useAi((s) => s.preference);
   const model = useAi((s) => s.webLlmModel);
   const setPreference = useAi((s) => s.setPreference);
-  const value = preference === "webllm" ? model : preference;
+  const value = preference === "webllm" && model ? model : preference;
+  const cached = useAi((s) => s.cachedModels);
+  const tags = device ? tagModels(device, cached) : null;
+  const webllmOff = availability?.webllm === "unsupported";
 
   return (
     <DropdownMenu>
@@ -30,24 +55,54 @@ export function ModelPicker() {
           <CpuIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel>{t("assistant.modelChoice")}</DropdownMenuLabel>
+        {device && isLimitedDevice(device) ? (
+          <p className="mx-2 mb-1 flex gap-2 rounded-md bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-300">
+            <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
+            {t("assistant.limitedBody")}
+          </p>
+        ) : null}
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(v) => {
-            if (v === "auto" || v === "chrome") setPreference(v);
-            else setPreference("webllm", v as WebLlmModelId);
+            if (v === "auto") setPreference("auto", null);
+            else if (v === "chrome") setPreference("chrome");
+            else if (isModelKey(v)) setPreference("webllm", v);
           }}
         >
-          <DropdownMenuRadioItem value="auto">{t("assistant.modelAuto")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="auto" className="flex-col items-start gap-0">
+            {t("assistant.modelAuto")}
+            {device ? (
+              <span className="text-xs text-muted-foreground">
+                {t("assistant.modelAutoHint", { model: variantFor(recommendedModel(device, cached), device).name })}
+              </span>
+            ) : null}
+          </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="chrome" disabled={availability?.chrome === "unsupported"}>
             Gemini Nano (Chrome)
           </DropdownMenuRadioItem>
-          {webLlmModels.map((m) => (
-            <DropdownMenuRadioItem key={m.id} value={m.id} disabled={availability?.webllm === "unsupported"}>
-              {m.name} · {(m.sizeMB / 1024).toFixed(1)} GB
-            </DropdownMenuRadioItem>
-          ))}
+          <DropdownMenuSeparator />
+          {webLlmModels.map((m) => {
+            const variant = device ? variantFor(m.key, device) : null;
+            return (
+              <DropdownMenuRadioItem key={m.key} value={m.key} disabled={webllmOff || tags?.[m.key].includes("noSpace")} className="flex-col items-start gap-1">
+                <span>
+                  {m.name}
+                  {variant ? <span className="text-muted-foreground"> · {gb(variant.sizeMB)}</span> : null}
+                </span>
+                {tags?.[m.key].length ? (
+                  <span className="flex flex-wrap gap-1">
+                    {tags[m.key].map((tag) => (
+                      <Badge key={tag} variant="outline" className={cn("h-4 px-1.5 text-[10px] font-normal", TAG_STYLE[tag])}>
+                        {t(TAG_LABEL[tag])}
+                      </Badge>
+                    ))}
+                  </span>
+                ) : null}
+              </DropdownMenuRadioItem>
+            );
+          })}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
