@@ -24,8 +24,8 @@ export function MinimalTemplate({ resume }: { resume: Resume }) {
   return (
     <Page size="A4" style={[ctx.s.page, { paddingVertical: 54, paddingHorizontal: 60 }]}>
       <View>
-        <Text style={{ fontSize: 22 }}>{basics.name}</Text>
-        {basics.headline ? <Text style={{ fontSize: 12, color: theme.muted, marginTop: 2 }}>{basics.headline}</Text> : null}
+        <Text style={{ fontSize: 22, lineHeight: 1.2 }}>{basics.name}</Text>
+        {basics.headline ? <Text style={{ fontSize: 12, lineHeight: 1.3, color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
         <ContactLine ctx={ctx} separator="   ·   " style={{ marginTop: 6, fontSize: 9, color: theme.muted }} />
       </View>
       <Sections ctx={ctx} sections={visibleSections(resume)} />
