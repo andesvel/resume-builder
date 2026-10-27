@@ -1,6 +1,7 @@
 import type { ChatCompletionRequestNonStreaming } from "@mlc-ai/web-llm";
 
 import type { Availability, GenerateOptions, LlmEngine, LoadProgress } from "./engine";
+import { parseJsonReply, stripReasoning } from "./output";
 import { webLlmModels, type WebLlmModelId } from "./models";
 
 export async function webLlmAvailability(): Promise<Availability> {
@@ -44,8 +45,8 @@ export async function createWebLlmEngine(modelId: WebLlmModelId, onProgress?: (p
   return {
     id: "webllm",
     label: name,
-    generateJson: async (options) => JSON.parse(await run(options, options.schema)),
-    generateText: (options) => run(options),
+    generateJson: async (options) => parseJsonReply(await run(options, options.schema)),
+    generateText: async (options) => stripReasoning(await run(options)),
     dispose: () => {
       void engine.unload();
       worker.terminate();
