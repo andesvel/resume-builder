@@ -1,3 +1,6 @@
+import { ArrowRightIcon } from "lucide-react";
+import { Link } from "react-router";
+
 import { CreateActions } from "~/features/home/create-actions";
 import { Features } from "~/features/landing/features";
 import { SamplePreview } from "~/features/landing/sample-preview";
@@ -48,6 +51,9 @@ export default function Home() {
           <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">{t("landing.title")}</h1>
           <p className="max-w-prose text-lg text-pretty text-muted-foreground">{t("landing.subtitle")}</p>
           <CreateActions />
+          <Link to="/agents" viewTransition className="inline-flex items-center gap-1.5 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+            {t("agents.landingCta")} <ArrowRightIcon className="size-4" aria-hidden />
+          </Link>
         </div>
         <div className="mx-auto w-full max-w-sm motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:delay-100 motion-safe:duration-500 motion-safe:fill-mode-both lg:max-w-none">
           <SamplePreview />
