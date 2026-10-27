@@ -120,7 +120,8 @@ export const resumeSchema = z.object({
   /** Font chosen per template; templates without an entry use their default. */
   fonts: z.partialRecord(z.enum(templateIds), z.enum(fontIds)).default({}),
   /** Sidebar tint of the Modern template. */
-  sidebarTone: z.enum(toneIds).default("neutral"),
+  // Unknown tones (e.g. the retired "stone") fall back to gray instead of invalidating the resume.
+  sidebarTone: z.enum(toneIds).catch("neutral").default("neutral"),
   sectionOrder: z.array(z.enum(sectionKeys)).default([...sectionKeys]),
   hiddenSections: list(z.enum(sectionKeys)),
   basics: basicsSchema.default(() => basicsSchema.parse({})),
