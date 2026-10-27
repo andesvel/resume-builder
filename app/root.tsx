@@ -5,18 +5,26 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from "react-router";
 
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
+import { resolveLocale } from "~/i18n/config";
+import { I18nProvider } from "~/i18n";
 import { themeScript } from "~/lib/theme";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 
+export function loader({ request }: Route.LoaderArgs) {
+  return { locale: resolveLocale(request) };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useRouteLoaderData<typeof loader>("root");
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={data?.locale ?? "en"} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,12 +41,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <TooltipProvider delayDuration={300}>
-      <Outlet />
-      <Toaster position="bottom-right" />
-    </TooltipProvider>
+    <I18nProvider locale={loaderData.locale}>
+      <TooltipProvider delayDuration={300}>
+        <Outlet />
+        <Toaster position="bottom-right" />
+      </TooltipProvider>
+    </I18nProvider>
   );
 }
 
