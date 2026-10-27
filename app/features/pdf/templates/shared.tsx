@@ -57,6 +57,8 @@ export interface RenderContext {
   s: Styles;
   theme: Theme;
   font: FontFaces;
+  /** Narrow column (e.g. a sidebar): dates go under the title instead of beside it. */
+  compact?: boolean;
 }
 
 export function createContext(resume: Resume, theme: Theme): RenderContext {
@@ -114,10 +116,18 @@ export function Bullets({ ctx, items }: { ctx: RenderContext; items: string[] })
 function Entry({ ctx, title, subtitle, meta, children }: { ctx: RenderContext; title: string; subtitle?: string; meta?: string; children?: React.ReactNode }) {
   return (
     <View style={ctx.s.entry} wrap={false}>
-      <View style={ctx.s.row}>
-        <Text style={ctx.s.title}>{title}</Text>
-        {meta ? <Text style={ctx.s.meta}>{meta}</Text> : null}
-      </View>
+      {ctx.compact ? (
+        <>
+          <Text style={ctx.s.title}>{title}</Text>
+          {meta ? <Text style={[ctx.s.meta, { textAlign: "left" }]}>{meta}</Text> : null}
+        </>
+      ) : (
+        <View style={ctx.s.row}>
+          {/* flex: 1 lets a long title wrap instead of running into the date. */}
+          <Text style={[ctx.s.title, { flex: 1 }]}>{title}</Text>
+          {meta ? <Text style={ctx.s.meta}>{meta}</Text> : null}
+        </View>
+      )}
       {subtitle ? <Text style={ctx.s.subtitle}>{subtitle}</Text> : null}
       {children}
     </View>
