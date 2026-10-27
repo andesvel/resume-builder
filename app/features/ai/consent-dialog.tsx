@@ -21,7 +21,7 @@ export function ConsentDialog({ open, onOpenChange, onAccept }: { open: boolean;
   const key = useAi((s) => s.activeModel());
   const model = device && key ? variantFor(key, device) : null;
   const size = model ? `${(model.sizeMB / 1024).toFixed(1)} GB` : "";
-  const heavy = device && key ? tagModels(device)[key].some((tag) => tag === "heavy" || tag === "tooHeavy") : false;
+  const heavy = device && key ? tagModels(device, useAi.getState().cachedModels)[key].some((tag) => tag === "heavy" || tag === "tooHeavy") : false;
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

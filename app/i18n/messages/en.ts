@@ -151,6 +151,7 @@ export const en = {
     modelLightest: "Lightest",
     modelHeavy: "Heavy",
     modelTooHeavy: "Very heavy for your device",
+    modelNoSpace: "Not enough browser storage",
     modelAutoHint: "Chrome’s built-in AI if available, otherwise {model}",
     limitedTitle: "This device has little memory",
     limitedBody: "Local models will likely be slow or fail here. Filling the form by hand, or using an AI agent through MCP, works better.",

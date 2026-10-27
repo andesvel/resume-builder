@@ -26,6 +26,8 @@ export interface DeviceInfo {
   /** WebGPU `shader-f16` support. */
   f16: boolean;
   mobile: boolean;
+  /** Free browser storage for model weights (quota minus usage), in MB; null when unknown. */
+  storageMB: number | null;
 }
 
 /** The concrete WebLLM build for this device. */
@@ -53,19 +55,27 @@ export function isLimitedDevice(device: DeviceInfo): boolean {
   return memoryBudgetMB(device) < 1500;
 }
 
-export type ModelTag = "recommended" | "lightest" | "heavy" | "tooHeavy";
+export type ModelTag = "recommended" | "lightest" | "heavy" | "tooHeavy" | "noSpace";
 
-/** Labels shown next to each model for this device. */
-export function tagModels(device: DeviceInfo): Record<ModelKey, ModelTag[]> {
+/**
+ * Labels shown next to each model for this device. `cached` lists builds
+ * already downloaded, which need no free storage.
+ */
+export function tagModels(device: DeviceInfo, cached: readonly string[] = []): Record<ModelKey, ModelTag[]> {
   const budget = memoryBudgetMB(device);
-  const sizes = webLlmModels.map((m) => ({ key: m.key, size: variantFor(m.key, device).sizeMB }));
-  const fitting = sizes.filter((m) => m.size <= budget);
+  const sizes = webLlmModels.map((m) => {
+    const variant = variantFor(m.key, device);
+    const fitsStorage = cached.includes(variant.id) || device.storageMB === null || variant.sizeMB <= device.storageMB;
+    return { key: m.key, size: variant.sizeMB, fitsStorage };
+  });
+  const fitting = sizes.filter((m) => m.size <= budget && m.fitsStorage);
   const recommended = (fitting.at(-1) ?? sizes[0])?.key;
   const lightest = sizes[0]?.key;
 
   return Object.fromEntries(
-    sizes.map(({ key, size }) => {
+    sizes.map(({ key, size, fitsStorage }) => {
       const tags: ModelTag[] = [];
+      if (!fitsStorage) tags.push("noSpace");
       if (key === recommended && budget > 0) tags.push("recommended");
       if (key === lightest) tags.push("lightest");
       if (size > budget * 1.6) tags.push("tooHeavy");
@@ -75,7 +85,7 @@ export function tagModels(device: DeviceInfo): Record<ModelKey, ModelTag[]> {
   ) as Record<ModelKey, ModelTag[]>;
 }
 
-export function recommendedModel(device: DeviceInfo): ModelKey {
-  const tags = tagModels(device);
+export function recommendedModel(device: DeviceInfo, cached: readonly string[] = []): ModelKey {
+  const tags = tagModels(device, cached);
   return webLlmModels.find((m) => tags[m.key].includes("recommended"))?.key ?? webLlmModels[0].key;
 }

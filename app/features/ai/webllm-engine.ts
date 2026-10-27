@@ -13,7 +13,14 @@ export async function webLlmAvailability(): Promise<{ availability: Availability
     memoryGB: (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? null,
     f16: false,
     mobile: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent),
+    storageMB: null,
   };
+  try {
+    const { quota, usage } = await navigator.storage.estimate();
+    if (quota !== undefined) device.storageMB = Math.round((quota - (usage ?? 0)) / 1024 / 1024);
+  } catch {
+    // Unknown free space: don't flag anything.
+  }
   const unsupported = { availability: "unsupported" as const, device, cached: [] };
   const gpu = (navigator as Navigator & { gpu?: Gpu }).gpu;
   if (!gpu) return unsupported;

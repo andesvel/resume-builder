@@ -64,8 +64,8 @@ export const useAi = create<AiState>()((set, get) => ({
   },
 
   activeModel: () => {
-    const { device, webLlmModel } = get();
-    return webLlmModel ?? (device ? recommendedModel(device) : null);
+    const { device, webLlmModel, cachedModels } = get();
+    return webLlmModel ?? (device ? recommendedModel(device, cachedModels) : null);
   },
 
   resolve: () => {
