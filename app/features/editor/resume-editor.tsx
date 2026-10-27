@@ -66,7 +66,7 @@ export function ResumeEditor({ resume }: { resume: Resume }) {
           <AccordionItem key={key} value={key} className="px-4">
             <div className="flex items-center gap-1">
               <div className="flex-1">
-                <AccordionTrigger className={cn(hidden && "text-muted-foreground line-through")}>
+                <AccordionTrigger className={cn(hidden && "text-muted-foreground")}>
                   {t(`sections.${key}`)}
                 </AccordionTrigger>
               </div>
