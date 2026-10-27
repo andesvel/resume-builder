@@ -32,7 +32,7 @@ export function PreviewPane({ resume, kind = "resume" }: { resume: Resume; kind?
           {t("pdfError")}
         </p>
       ) : null}
-      <PdfPreview blob={blob} className="max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-lg bg-muted/40 p-3" />
+      <PdfPreview blob={blob} className="max-h-[calc(100dvh-9rem)] overflow-y-auto rounded-lg bg-muted/40 p-3" />
     </div>
   );
 }

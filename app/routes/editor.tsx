@@ -86,7 +86,7 @@ export default function EditorRoute({ loaderData }: Route.ComponentProps) {
         {wide ? (
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6">
             {content}
-            <div className="sticky top-24 self-start">{preview}</div>
+            <div className="sticky top-20 self-start">{preview}</div>
           </div>
         ) : (
           <Tabs defaultValue="content">

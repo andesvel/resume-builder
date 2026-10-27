@@ -47,7 +47,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <I18nProvider locale={loaderData.locale}>
       <TooltipProvider delayDuration={300}>
-        <div className="flex min-h-dvh flex-col pt-18">
+        <div className="flex min-h-dvh flex-col">
           <SiteHeader />
           <div className="flex-1">
             <Outlet />
