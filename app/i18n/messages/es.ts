@@ -183,6 +183,14 @@ export const es: Messages = {
     exportPdf: "Descargar carta en PDF",
     hint: "El borrador solo usa datos de tu CV. Revisa cada frase antes de enviarla.",
   },
+  mcp: {
+    importing: "Guardando “{title}” en este navegador…",
+    conflictTitle: "Tienes una versión local más reciente",
+    conflictBody: "“{title}” se editó aquí después del último cambio del agente. ¿Reemplazarlo con la versión del agente?",
+    keepLocal: "Conservar la mía",
+    useAgent: "Usar la del agente",
+    notFound: "Este enlace expiró o no existe. Pídele uno nuevo al agente.",
+  },
   templates: {
     sidebarTone: "Color de la barra lateral",
     tones: { neutral: "Gris", stone: "Piedra", sky: "Celeste", blue: "Azul", emerald: "Esmeralda", amber: "Ámbar", rose: "Rosa", violet: "Violeta" },
