@@ -175,6 +175,9 @@ export const es: Messages = {
     hint: "El borrador solo usa datos de tu CV. Revisa cada frase antes de enviarla.",
   },
   templates: {
+    font: "Fuente",
+    fontSans: "Sin serifa",
+    fontSerif: "Con serifa",
     label: "Plantilla",
     professional: "Profesional",
     professionalDescription: "Una columna clásica. La opción más segura para ATS.",
