@@ -3,12 +3,12 @@ import { Link, NavLink } from "react-router";
 
 import { Button } from "~/components/ui/button";
 import { type MessageKey, useI18n } from "~/i18n";
+import { REPO_URL } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 
 import { LocaleSwitcher } from "./locale-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
-export const REPO_URL = "https://github.com/andesvel/resume-builder";
 
 const links: { to: string; label: MessageKey; icon: typeof HouseIcon }[] = [
   { to: "/", label: "nav.home", icon: HouseIcon },

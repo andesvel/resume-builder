@@ -26,12 +26,15 @@ import { CreateActions } from "~/features/home/create-actions";
 import { cloneResume } from "~/features/resume/factory";
 import { getResumeRepository } from "~/features/resume/repository";
 import type { ResumeMeta } from "~/features/resume/schema";
-import { useI18n } from "~/i18n";
+import { getT, useI18n } from "~/i18n";
+import { rootData, seo } from "~/lib/seo";
 
 import type { Route } from "./+types/resumes";
 
-export function meta() {
-  return [{ title: "Your resumes · Resume Builder" }];
+export function meta({ matches }: Route.MetaArgs) {
+  const root = rootData(matches);
+  const t = getT(root.locale);
+  return seo({ title: t("seo.resumesTitle"), description: t("seo.privateDescription"), path: "/resumes", root, noindex: true });
 }
 
 export async function clientLoader() {

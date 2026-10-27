@@ -106,6 +106,15 @@ export const es: Messages = {
       get_import_link: "Link que guarda el borrador en tu navegador",
     },
   },
+  seo: {
+    homeTitle: "Resume Builder: un CV compatible con ATS a partir de tus palabras",
+    homeDescription: "Creador de CVs gratuito. Describe tu experiencia con tus palabras y obtén un CV en PDF compatible con ATS y una carta de presentación. La IA corre en tu navegador y tus datos no salen de él.",
+    agentsTitle: "Escribe tu CV con un agente de IA (MCP) · Resume Builder",
+    agentsDescription: "Conecta Claude Code, Codex, OpenCode o cualquier cliente MCP a Resume Builder para crear, editar y exportar CVs y cartas de presentación en PDF.",
+    resumesTitle: "Tus CVs · Resume Builder",
+    settingsTitle: "Ajustes · Resume Builder",
+    privateDescription: "CVs guardados en este navegador.",
+  },
   landing: {
     title: "Tu CV, sin la hoja en blanco",
     subtitle: "Describe tu experiencia con tus palabras y obtén un CV limpio que los sistemas de selección (ATS) pueden leer. Ajusta cualquier detalle, elige una plantilla y descarga el PDF.",

@@ -9,10 +9,15 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { cachedBuildSizes, clearModelCaches, deleteCachedBuild } from "~/features/ai/engines.client";
 import { recommendedModel, variantFor, webLlmModels } from "~/features/ai/models";
 import { useAi } from "~/features/ai/store";
-import { useI18n } from "~/i18n";
+import { getT, useI18n } from "~/i18n";
+import { rootData, seo } from "~/lib/seo";
 
-export function meta() {
-  return [{ title: "Settings · Resume Builder" }];
+import type { Route } from "./+types/settings";
+
+export function meta({ matches }: Route.MetaArgs) {
+  const root = rootData(matches);
+  const t = getT(root.locale);
+  return seo({ title: t("seo.settingsTitle"), description: t("seo.privateDescription"), path: "/settings", root, noindex: true });
 }
 
 const MEMORY_OPTIONS = [2, 4, 8, 16, 32, 64];
