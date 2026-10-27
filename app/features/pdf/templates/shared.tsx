@@ -2,21 +2,22 @@ import { Link, StyleSheet, Text, View, type Styles as PdfStyles } from "@react-p
 
 import { getT, type TFunction } from "~/i18n";
 import { displayUrl, formatDateRange, formatPartialDate, hrefFor, nonEmpty } from "~/features/resume/format";
+import { fontFor } from "~/features/resume/fonts";
 import type { Resume, SectionKey } from "~/features/resume/schema";
+
+import { type FontFaces, fontFaces } from "../fonts";
 
 export type Style = PdfStyles[string];
 
 /** Visual knobs a template can tweak while reusing the shared section renderers. */
 export interface Theme {
-  font: string;
-  boldFont: string;
-  italicFont: string;
   base: number;
   ink: string;
   muted: string;
   rule: string;
-  /** Section heading style. */
+  /** Section heading style and which face it uses. */
   heading: Style;
+  headingFace?: keyof FontFaces;
   /** Draw a rule under section headings. */
   headingRule: boolean;
   sectionGap: number;
@@ -28,24 +29,24 @@ type StyleName =
 
 export type Styles = Record<StyleName, Style>;
 
-export function createStyles(theme: Theme): Styles {
+export function createStyles(theme: Theme, font: FontFaces): Styles {
   return StyleSheet.create({
     // react-pdf resolves an inherited unitless lineHeight against the page's
     // font size, so larger text (name, headline) must set its own.
-    page: { fontFamily: theme.font, fontSize: theme.base, color: theme.ink, lineHeight: 1.35 },
+    page: { ...font.regular, fontSize: theme.base, color: theme.ink, lineHeight: 1.35 },
     section: { marginTop: theme.sectionGap },
-    heading: { fontFamily: theme.boldFont, ...theme.heading },
+    heading: { ...font[theme.headingFace ?? "bold"], ...theme.heading },
     rule: { borderBottomWidth: 0.6, borderBottomColor: theme.rule, marginTop: 2, marginBottom: 5 },
     entry: { marginBottom: 6 },
     row: { flexDirection: "row", justifyContent: "space-between", gap: 8 },
-    title: { fontFamily: theme.boldFont },
+    title: font.bold,
     subtitle: { color: theme.muted },
     meta: { color: theme.muted, fontSize: theme.base - 0.5, textAlign: "right", flexShrink: 0 },
     bullet: { flexDirection: "row", marginTop: 1.5, paddingLeft: 2 },
     bulletDot: { width: 9 },
     bulletText: { flex: 1 },
     paragraph: { textAlign: "justify" },
-    inline: { fontFamily: theme.boldFont },
+    inline: font.bold,
     link: { color: theme.ink, textDecoration: "none" },
   });
 }
@@ -55,10 +56,12 @@ export interface RenderContext {
   t: TFunction;
   s: Styles;
   theme: Theme;
+  font: FontFaces;
 }
 
 export function createContext(resume: Resume, theme: Theme): RenderContext {
-  return { resume, t: getT(resume.locale), s: createStyles(theme), theme };
+  const font = fontFaces(fontFor(resume));
+  return { resume, t: getT(resume.locale), s: createStyles(theme, font), theme, font };
 }
 
 /** Sections in user order, minus hidden and empty ones. */
