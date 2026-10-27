@@ -1,0 +1,7 @@
+# Supply-chain hardening: only install versions published at least 7 days ago
+# and never run dependency lifecycle scripts unless explicitly allowed.
+minimumReleaseAge: 10080
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
+  - sharp
