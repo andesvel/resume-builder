@@ -5,14 +5,12 @@ import type { Resume } from "~/features/resume/schema";
 import { ContactLine, createContext, Sections, type Theme, visibleSections } from "./shared";
 
 const theme: Theme = {
-  font: "Times-Roman",
-  boldFont: "Times-Bold",
-  italicFont: "Times-Italic",
   base: 10.5,
   ink: "#1a1a1a",
   muted: "#555555",
   rule: "#dddddd",
-  heading: { fontSize: 11, fontFamily: "Times-Italic", color: "#555555" },
+  heading: { fontSize: 11, color: "#555555" },
+  headingFace: "italic",
   headingRule: false,
   sectionGap: 14,
 };
