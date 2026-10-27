@@ -24,14 +24,14 @@ Ideas parked after the MVP. Check items off as they land.
 - [ ] **Accounts** (e.g. Better Auth) + **D1** `ResumeRepository` so users can keep several versions in sync across devices; IndexedDB stays as the offline cache
 - [ ] Share link / public read-only resume page
 - [ ] Custom domain: `resume-builder.andesvel.dev` (Workers custom domain once `andesvel.dev` is bought)
-- [ ] Open-source release: pick a license (MIT), CONTRIBUTING, issue templates
+- [ ] Open-source release: CONTRIBUTING, issue templates (license done: MIT)
 - [ ] Enforce the branch ruleset (`.github/rulesets/`) once public or on GitHub Pro
 
 ## SEO
 
 - [ ] Open Graph / social image (1200×630) and favicons once the logo exists
 - [ ] Locale in the URL (e.g. `/es`) with `hreflang`, so the Spanish pages get indexed too (today the language comes from a cookie or Accept-Language on the same URL, so crawlers see English)
-- [ ] Add a LICENSE: the repo is public but has none, so the code is all rights reserved by default
+- [x] Add a LICENSE (MIT)
 
 ## Editor & templates
 
