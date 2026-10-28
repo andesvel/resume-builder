@@ -201,12 +201,14 @@ export const en = {
     kind: "When scanned",
     kinds: { vcard: "Save contact", url: "Open a link", email: "Write an email", phone: "Call" },
     scans: {
-      vcard: "Offers to save your name, headline, phone, email and first link as a contact.",
+      vcard: "Offers to save your name, headline, phone, email and first link as a contact. Phones sort contacts by surname; the gray one is a guess, so type yours if it's wrong.",
       url: "Opens the link in the browser.",
       email: "Opens a new email to you, with the subject below if you set one.",
       phone: "Starts a call to your phone number.",
     },
     link: "Link",
+    familyName: "Surname(s) in the contact",
+    familyNamePlaceholder: "e.g. Pérez Gómez",
     subject: "Email subject",
     subjectPlaceholder: "e.g. About your application",
     missing: {

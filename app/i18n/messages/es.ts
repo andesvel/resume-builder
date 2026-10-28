@@ -204,12 +204,14 @@ export const es: Messages = {
     kind: "Al escanearlo",
     kinds: { vcard: "Guardar contacto", url: "Abrir un enlace", email: "Escribir un correo", phone: "Llamar" },
     scans: {
-      vcard: "Ofrece guardar tu nombre, titular, teléfono, correo y primer enlace como contacto.",
+      vcard: "Ofrece guardar tu nombre, titular, teléfono, correo y primer enlace como contacto. Los celulares ordenan por apellido; el que aparece en gris es una suposición, así que escribe el tuyo si no es correcto.",
       url: "Abre el enlace en el navegador.",
       email: "Abre un correo nuevo para ti, con el asunto de abajo si lo defines.",
       phone: "Inicia una llamada a tu teléfono.",
     },
     link: "Enlace",
+    familyName: "Apellido(s) del contacto",
+    familyNamePlaceholder: "p. ej. Pérez Gómez",
     subject: "Asunto del correo",
     subjectPlaceholder: "p. ej. Sobre tu postulación",
     missing: {
