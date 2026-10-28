@@ -26,7 +26,7 @@ import { renderPdf } from "./render-pdf.server";
 const INSTRUCTIONS = `Resume Builder: create and edit resumes and cover letters, then hand them to the user.
 - Resumes live here as drafts for 7 days after their last change. The user saves one into the app by opening its import link (get_import_link); nothing reaches their browser otherwise.
 - Use only facts the user gave you. Ask for missing ones instead of inventing them.
-- Dates are "YYYY" or "YYYY-MM"; set current: true for an ongoing job instead of an end date.
+- Dates are "YYYY" or "YYYY-MM"; set current: true for an ongoing job or degree instead of an end date. Education "field" is the subject studied, never a status.
 - Write content in the resume's locale ("en" or "es").
 - Call describe_options for templates, fonts, colors and section names.`;
 

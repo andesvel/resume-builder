@@ -183,6 +183,7 @@ export const es: Messages = {
     datePlaceholder: "AAAA-MM",
     dateHint: "Usa AAAA o AAAA-MM",
     current: "Trabajo aquí actualmente",
+    studying: "Estudio aquí actualmente",
     present: "Actualidad",
   },
   sections: {
