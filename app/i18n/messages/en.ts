@@ -201,7 +201,7 @@ export const en = {
     kind: "When scanned",
     kinds: { vcard: "Save contact", whatsapp: "Chat on WhatsApp", url: "Open a link", email: "Write an email", phone: "Call" },
     scans: {
-      vcard: "Offers to save your name, headline, phone, email, first link and WhatsApp as a contact. Phones sort contacts by surname; the gray one is a guess, so type yours if it's wrong.",
+      vcard: "Offers to save your name, headline, phone, email and first link as a contact. Phones sort contacts by surname; the gray one is a guess, so type yours if it's wrong.",
       whatsapp: "Opens a WhatsApp chat with you, with the message below already typed if you set one.",
       url: "Opens the link in the browser.",
       email: "Opens a new email to you, with the subject below if you set one.",
@@ -213,14 +213,12 @@ export const en = {
     message: "WhatsApp message",
     messagePlaceholder: "e.g. Hi, I'm reaching out about your application",
     whatsapp: "WhatsApp",
-    whatsappSources: { phone: "Same as my phone", number: "Another number", username: "My username", off: "Don't include" },
+    whatsappSources: { phone: "Same as my phone", number: "Another number", username: "My username", },
     whatsappNumber: "WhatsApp number",
     whatsappUsername: "WhatsApp username",
     usernameHint: "Your number stays out of the link. If you set a username key, people who haven't messaged you before will also need it. Your phone in Personal info is still printed; remove it there if you'd rather not share it.",
     region: "Country code",
     regionPlaceholder: "Choose a country",
-    whatsappNeedsRegion: "Your number has no country code, so the WhatsApp link is left out. Choose the country above or write the number with + and its code.",
-    whatsappMissing: "The WhatsApp link is left out until you fill in the number or username.",
     subject: "Email subject",
     subjectPlaceholder: "e.g. About your application",
     missing: {
@@ -230,7 +228,7 @@ export const en = {
       email: "Add your email in Personal info to generate the code.",
       phone: "Add your phone in Personal info to generate the code.",
     },
-    dense: "The code carries a lot of data, so it prints large (about 3 cm) and is harder to scan. A shorter headline or link helps, or leave WhatsApp out.",
+    dense: "The code carries a lot of data, so it prints large (about 3 cm) and is harder to scan. A shorter headline or link helps.",
   },
   fields: {
     name: "Full name",
