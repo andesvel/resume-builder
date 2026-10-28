@@ -28,6 +28,7 @@ const INSTRUCTIONS = `Resume Builder: create and edit resumes and cover letters,
 - Use only facts the user gave you. Ask for missing ones instead of inventing them.
 - Dates are "YYYY" or "YYYY-MM"; set current: true for an ongoing job or degree instead of an end date. Education "field" is the subject studied, never a status.
 - Write content in the resume's locale ("en" or "es").
+- When turning on the QR code (qr.enabled) with a name of 3+ words, set qr.familyName to the surname(s); ask if unsure. Phones sort the saved contact by it.
 - Call describe_options for templates, fonts, colors and section names.`;
 
 const idArg = { id: z.string().describe("Resume id (from create_resume or list_resumes)") };
