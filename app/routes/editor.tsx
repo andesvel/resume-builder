@@ -45,7 +45,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <main className="mx-auto grid max-w-md justify-items-center gap-4 px-4 py-20 text-center">
         <p className="text-muted-foreground">{t("editor.notFound")}</p>
         <Button asChild variant="outline">
-          <Link to="/" viewTransition>{t("common.back")}</Link>
+          <Link to="/resumes" viewTransition>{t("common.back")}</Link>
         </Button>
       </main>
     </>
