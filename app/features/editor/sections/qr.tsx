@@ -6,7 +6,7 @@ import { Label } from "~/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
 import { useI18n } from "~/i18n";
-import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload } from "~/features/resume/qr";
+import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName } from "~/features/resume/qr";
 import { type QrKind, qrKinds, type QrSettings, type Resume } from "~/features/resume/schema";
 import { useEditor } from "~/features/resume/store";
 
@@ -63,6 +63,14 @@ export function QrSection({ resume }: { resume: Resume }) {
                   </SelectContent>
                 </Select>
               </div>
+            ) : null}
+            {qr.kind === "vcard" ? (
+              <TextField
+                label={t("qr.familyName")}
+                placeholder={splitName(basics.name, "", resume.locale).family || t("qr.familyNamePlaceholder")}
+                value={qr.familyName}
+                onChange={(familyName) => set({ familyName }, false)}
+              />
             ) : null}
             {qr.kind === "email" ? (
               <TextField label={t("qr.subject")} placeholder={t("qr.subjectPlaceholder")} value={qr.subject} onChange={(subject) => set({ subject }, false)} />
