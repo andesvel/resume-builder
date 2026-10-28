@@ -19,6 +19,13 @@ describe("mergeExtraction", () => {
     expect(summary.added).toMatchObject({ experience: 1, skills: 2, links: 1 });
   });
 
+  it("marks an ongoing degree as current", () => {
+    const { resume } = mergeExtraction(createResume(), {
+      education: [{ institution: "UNAM", degree: "BSc", startDate: "2026", endDate: "present" }],
+    });
+    expect(resume.education[0]).toMatchObject({ startDate: "2026", current: true, endDate: "" });
+  });
+
   it("enriches matching entries on follow-up input instead of duplicating", () => {
     const base = createResume({
       experience: [{ company: "Acme Inc.", role: "Dev", startDate: "2020-03", current: true, highlights: ["Built X"] }],

@@ -144,7 +144,11 @@ export function mergeExtraction(resume: Resume, x: Extraction): { resume: Resume
       fill(target, "degree", clean(e.degree), mark);
       fill(target, "field", clean(e.field), mark);
       assign(target, "startDate", normalizeDate(e.startDate).date, mark);
-      assign(target, "endDate", normalizeDate(e.endDate).date, mark);
+      const end = normalizeDate(e.endDate);
+      if (end.current) {
+        assign(target, "current", true, mark);
+        assign(target, "endDate", "", mark);
+      } else assign(target, "endDate", end.date, mark);
       if (!existing) {
         d.education.push(target);
         bump("added", "education");

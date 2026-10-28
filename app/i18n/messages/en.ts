@@ -180,6 +180,7 @@ export const en = {
     datePlaceholder: "YYYY-MM",
     dateHint: "Use YYYY or YYYY-MM",
     current: "I currently work here",
+    studying: "I currently study here",
     present: "Present",
   },
   sections: {
