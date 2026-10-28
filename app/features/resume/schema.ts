@@ -128,7 +128,7 @@ export const qrSchema = z.object({
   subject: text(),
   /** Surname(s) for the vCard, when guessing them from the full name gets it wrong. */
   familyName: text(),
-  /** Region (e.g. "MX") whose calling code completes numbers written without one. */
+  /** Region (e.g. "MX") whose calling code completes a WhatsApp number written without one. */
   phoneRegion: z.enum(phoneRegionIds).optional().catch(undefined),
   /** WhatsApp the "whatsapp" kind opens: the resume's phone, another number or a username. */
   whatsapp: z.enum(whatsappSources).catch("phone").default("phone"),

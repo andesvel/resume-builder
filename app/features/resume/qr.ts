@@ -29,7 +29,8 @@ export function qrPayload(resume: Resume): string | null {
       return subject ? `mailto:${email}?subject=${encodeURIComponent(subject)}` : `mailto:${email}`;
     }
     case "phone": {
-      const phone = dialable(basics.phone, qr.phoneRegion ?? "");
+      // Calls work with the number as written; the region only completes WhatsApp links.
+      const phone = dialable(basics.phone, "");
       return phone ? `tel:${phone}` : null;
     }
   }
@@ -58,9 +59,8 @@ export function qrHref(resume: Resume, payload: string): string | undefined {
 /** vCard 3.0 with the fields a recruiter would save; null without a name or a way to reach them. */
 function vcard(resume: Resume): string | null {
   const { basics, qr, locale } = resume;
-  const region = qr.phoneRegion ?? "";
   const name = basics.name.trim();
-  const phone = basics.phone.trim() ? dialable(basics.phone, region) : "";
+  const phone = basics.phone.trim() ? dialable(basics.phone, "") : "";
   const email = basics.email.trim();
   const url = basics.links.find((l) => l.url.trim())?.url;
   if (!name || !(phone || email || url)) return null;
