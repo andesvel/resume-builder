@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createResume } from "./factory";
-import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload } from "./qr";
+import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName } from "./qr";
 import type { ResumeInput } from "./schema";
 
 const basics = {
@@ -14,7 +14,7 @@ const basics = {
     { id: "b", label: "LinkedIn", url: "https://linkedin.com/in/ana" },
   ],
 };
-const resume = (qr: ResumeInput["qr"], over: ResumeInput["basics"] = {}) => createResume({ basics: { ...basics, ...over }, qr });
+const resume = (qr: ResumeInput["qr"], over: ResumeInput["basics"] = {}) => createResume({ locale: "es", basics: { ...basics, ...over }, qr });
 
 describe("qrPayload", () => {
   it("builds an escaped vCard", () => {
@@ -29,6 +29,12 @@ describe("qrPayload", () => {
       "URL:https://ana.dev",
       "END:VCARD",
     ]);
+  });
+
+  it("uses the surname the user set", () => {
+    const text = qrPayload(resume({ kind: "vcard", familyName: "Estrada" }, { name: "Hugart Andres Estrada" }));
+    expect(text).toContain("\r\nN:Estrada;Hugart Andres;;;\r\n");
+    expect(text).toContain("\r\nFN:Hugart Andres Estrada\r\n");
   });
 
   it("leaves out what the resume doesn't have", () => {
@@ -64,5 +70,20 @@ describe("qrMatrix", () => {
 
   it("keeps a typical vCard within the comfortable size", () => {
     expect(qrMatrix(qrPayload(resume({ kind: "vcard" }))!).version).toBeLessThanOrEqual(QR_MAX_COMFORTABLE_VERSION);
+  });
+});
+
+describe("splitName", () => {
+  it("guesses two surnames in Spanish and one in English", () => {
+    expect(splitName("Ana Pérez Gómez", "", "es")).toEqual({ given: "Ana", family: "Pérez Gómez" });
+    expect(splitName("Mary Ann Smith", "", "en")).toEqual({ given: "Mary Ann", family: "Smith" });
+    expect(splitName("Ana Pérez", "", "es")).toEqual({ given: "Ana", family: "Pérez" });
+    expect(splitName("Cher", "", "en")).toEqual({ given: "Cher", family: "" });
+  });
+
+  it("prefers the surname the user set", () => {
+    expect(splitName("Hugart  Andres Estrada", "estrada", "es")).toEqual({ given: "Hugart Andres", family: "estrada" });
+    expect(splitName("Ana Pérez", "Pérez Gómez", "es")).toEqual({ given: "Ana Pérez", family: "Pérez Gómez" });
+    expect(splitName("Estrada", "Estrada", "es")).toEqual({ given: "", family: "Estrada" });
   });
 });

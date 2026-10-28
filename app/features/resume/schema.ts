@@ -122,6 +122,8 @@ export const qrSchema = z.object({
   linkId: text(),
   /** Subject prefilled when kind is "email". */
   subject: text(),
+  /** Surname(s) for the vCard, when guessing them from the full name gets it wrong. */
+  familyName: text(),
 });
 
 export const RESUME_SCHEMA_VERSION = 1;
