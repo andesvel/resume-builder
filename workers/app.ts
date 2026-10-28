@@ -37,10 +37,17 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
   return transport.handleRequest(request);
 }
 
+/**
+ * Any origin may fetch draft PDFs: the id is the only credential (no cookies),
+ * and agents driving a job site's page need to fetch the file from there to
+ * attach it to an application form.
+ */
+const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Expose-Headers": "Content-Disposition" };
+
 /** GET /api/drafts/:id/(resume|cover-letter).pdf — capability URL: the unguessable id is the access. */
 async function handleDraftPdf(request: Request, env: Env, id: string, file: string): Promise<Response> {
   const resume = await draftStore(env).get(id);
-  if (!resume) return new Response("Not found", { status: 404 });
+  if (!resume) return new Response("Not found", { status: 404, headers: cors });
   const kind = file === "resume.pdf" ? "resume" : "cover_letter";
   const bytes = await renderPdf(env, new URL(request.url).origin, resume, kind);
   return new Response(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "application/pdf" }), {
@@ -49,6 +56,7 @@ async function handleDraftPdf(request: Request, env: Env, id: string, file: stri
       "Content-Disposition": `inline; filename="${file}"`,
       "Cache-Control": "no-store",
       "X-Robots-Tag": "noindex",
+      ...cors,
     },
   });
 }
