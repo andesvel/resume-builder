@@ -1,8 +1,9 @@
-import { Link, StyleSheet, Text, View, type Styles as PdfStyles } from "@react-pdf/renderer";
+import { Link, Path, Rect, StyleSheet, Svg, Text, View, type Styles as PdfStyles } from "@react-pdf/renderer";
 
 import { getT, type TFunction } from "~/i18n";
 import { displayUrl, formatDateRange, formatPartialDate, hrefFor, nonEmpty } from "~/features/resume/format";
 import { fontFor } from "~/features/resume/fonts";
+import { qrHref, qrMatrix, qrPayload } from "~/features/resume/qr";
 import type { Resume, SectionKey } from "~/features/resume/schema";
 
 import { type FontFaces, fontFaces } from "../fonts";
@@ -89,6 +90,34 @@ export function contactItems(resume: Resume): { label: string; href?: string }[]
     location && { label: location },
     ...links.filter((l) => l.url).map((l) => ({ label: displayUrl(l.url), href: hrefFor(l.url) })),
   ].filter((x): x is { label: string; href?: string } => Boolean(x));
+}
+
+/** Printed width including the quiet zone (~25 mm); the code itself stays around 21 mm. */
+export const QR_SIZE = 70;
+const QR_QUIET_ZONE = 4;
+
+/** Text the resume's QR code encodes, or null when it's off or has nothing to carry. */
+export function qrText(resume: Resume): string | null {
+  return resume.qr.enabled ? qrPayload(resume) : null;
+}
+
+/**
+ * Vector QR code, black on white whatever the template's colors, so it prints
+ * sharp and scans on tinted backgrounds. Clickable in the PDF unless it's a vCard.
+ */
+export function QrCode({ resume, style }: { resume: Resume; style?: Style }) {
+  const text = qrText(resume);
+  if (!text) return null;
+  const { size, path } = qrMatrix(text);
+  const box = size + QR_QUIET_ZONE * 2;
+  const code = (
+    <Svg width={QR_SIZE} height={QR_SIZE} viewBox={`${-QR_QUIET_ZONE} ${-QR_QUIET_ZONE} ${box} ${box}`}>
+      <Rect x={-QR_QUIET_ZONE} y={-QR_QUIET_ZONE} width={box} height={box} fill="#ffffff" />
+      <Path d={path} fill="#000000" />
+    </Svg>
+  );
+  const href = qrHref(resume, text);
+  return <View style={[{ width: QR_SIZE, height: QR_SIZE, flexShrink: 0 }, style ?? {}]}>{href ? <Link src={href}>{code}</Link> : code}</View>;
 }
 
 export function Heading({ ctx, children }: { ctx: RenderContext; children: string }) {
