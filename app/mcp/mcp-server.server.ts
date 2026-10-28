@@ -111,7 +111,7 @@ export function createMcpServer({ env, origin }: Context): McpServer {
           },
           phoneRegion: {
             values: Object.entries(phoneRegions).map(([region, code]) => `${region} (+${code})`),
-            note: "Completes numbers written without a country code; the \"whatsapp\" kind needs it for such numbers. Prefer writing numbers with + and the code.",
+            note: "Used by the \"whatsapp\" kind only, to complete a number written without a country code. Prefer writing numbers with + and the code.",
           },
           note: "Off by default. Turn on with update_resume { qr: { enabled: true, kind } }; it prints in every template, built from the resume's own contact data.",
         },

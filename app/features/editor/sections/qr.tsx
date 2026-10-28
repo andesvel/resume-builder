@@ -26,11 +26,9 @@ export function QrSection({ resume }: { resume: Resume }) {
   const withWhatsapp = qr.kind === "whatsapp";
   const source = qr.whatsapp;
   // Numbers that end up in the code and were written without a country code.
-  const numbers = [
-    (qr.kind === "phone" || qr.kind === "vcard" || (withWhatsapp && source === "phone")) && basics.phone,
-    withWhatsapp && source === "number" && qr.whatsappNumber,
-  ].filter((n): n is string => Boolean(n));
-  const askRegion = numbers.some(needsRegion);
+  // Only wa.me needs a country code; calls and saved contacts work with the number as written.
+  const whatsappNumber = withWhatsapp && source !== "username" ? (source === "number" ? qr.whatsappNumber : basics.phone) : "";
+  const askRegion = needsRegion(whatsappNumber);
   const regionName = new Intl.DisplayNames([locale], { type: "region" });
 
   return (
