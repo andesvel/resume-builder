@@ -40,6 +40,7 @@ Ideas parked after the MVP. Check items off as they land.
 - [ ] Embedded fonts (Inter/Geist) in PDFs instead of the standard 14
 - [ ] Rich text (bold/links) in highlights
 - [ ] Photo option for regions where it's customary
+- [ ] QR code: choose its position, and a caption under it (e.g. "Scan to save my contact")
 
 ## AI quality
 
