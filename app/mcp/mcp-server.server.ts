@@ -4,7 +4,8 @@ import { z } from "zod";
 import { fontIds, fontMeta, defaultFonts } from "~/features/resume/fonts";
 import { parseResume } from "~/features/resume/factory";
 import type { Resume } from "~/features/resume/schema";
-import { sectionKeys, templateIds } from "~/features/resume/schema";
+import { sectionKeys, templateIds, whatsappSources } from "~/features/resume/schema";
+import { phoneRegions } from "~/features/resume/phone";
 import { toneIds } from "~/features/resume/tones";
 import { resumeFromLinkedInZip } from "~/features/import/linkedin";
 import { locales } from "~/i18n/config";
@@ -29,6 +30,7 @@ const INSTRUCTIONS = `Resume Builder: create and edit resumes and cover letters,
 - Dates are "YYYY" or "YYYY-MM"; set current: true for an ongoing job or degree instead of an end date. Education "field" is the subject studied, never a status.
 - Write content in the resume's locale ("en" or "es").
 - When turning on the QR code (qr.enabled) with a name of 3+ words, set qr.familyName to the surname(s); ask if unsure. Phones sort the saved contact by it.
+- Write phone numbers with + and the country code. The QR code includes WhatsApp by default (qr.whatsapp: "phone"); ask whether their WhatsApp is another number or a username.
 - Call describe_options for templates, fonts, colors and section names.`;
 
 const idArg = { id: z.string().describe("Resume id (from create_resume or list_resumes)") };
@@ -97,10 +99,19 @@ export function createMcpServer({ env, origin }: Context): McpServer {
         dateFormat: "YYYY or YYYY-MM",
         qr: {
           kinds: {
-            vcard: "Saves the contact (name, headline, phone, email, first link). Default. Set `familyName` to the surname(s) when the name has 3+ words; otherwise it's guessed.",
+            vcard: "Saves the contact (name, headline, phone, email, first link, WhatsApp). Default. Set `familyName` to the surname(s) when the name has 3+ words; otherwise it's guessed.",
+            whatsapp: "Opens a WhatsApp chat, with `whatsappMessage` prefilled when set.",
             url: "Opens one of basics.links, chosen by `linkId` (the first link when empty).",
             email: "Opens a new email to basics.email, with `subject` prefilled when set.",
             phone: "Calls basics.phone.",
+          },
+          whatsapp: {
+            values: whatsappSources,
+            note: '"phone" (default) uses basics.phone, "number" uses `whatsappNumber`, "username" uses `whatsappUsername` (without @), "off" leaves it out of the vCard.',
+          },
+          phoneRegion: {
+            values: Object.entries(phoneRegions).map(([region, code]) => `${region} (+${code})`),
+            note: "Completes numbers written without a country code; without it the WhatsApp link is left out. Prefer writing numbers with + and the code.",
           },
           note: "Off by default. Turn on with update_resume { qr: { enabled: true, kind } }; it prints in every template, built from the resume's own contact data.",
         },
