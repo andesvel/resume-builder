@@ -110,6 +110,20 @@ export const coverLetterSchema = z.object({
   body: text(),
 });
 
+export const qrKinds = ["vcard", "url", "email", "phone"] as const;
+export type QrKind = (typeof qrKinds)[number];
+
+/** Optional QR code printed on the resume so a reader can act on a paper copy. */
+export const qrSchema = z.object({
+  enabled: z.boolean().default(false),
+  /** vCard saves a contact; the others open a link, an email or a call. */
+  kind: z.enum(qrKinds).catch("vcard").default("vcard"),
+  /** Link (from basics.links) encoded when kind is "url"; the first one when empty or gone. */
+  linkId: text(),
+  /** Subject prefilled when kind is "email". */
+  subject: text(),
+});
+
 export const RESUME_SCHEMA_VERSION = 1;
 
 export const resumeSchema = z.object({
@@ -135,6 +149,7 @@ export const resumeSchema = z.object({
   languages: list(languageSchema),
   custom: list(customSectionSchema),
   coverLetter: coverLetterSchema.default(() => coverLetterSchema.parse({})),
+  qr: qrSchema.default(() => qrSchema.parse({})),
   createdAt: z.string().default(() => new Date().toISOString()),
   updatedAt: z.string().default(() => new Date().toISOString()),
 });
@@ -152,6 +167,7 @@ export type Language = z.infer<typeof languageSchema>;
 export type CustomSection = z.infer<typeof customSectionSchema>;
 export type CustomEntry = z.infer<typeof customEntrySchema>;
 export type CoverLetter = z.infer<typeof coverLetterSchema>;
+export type QrSettings = z.infer<typeof qrSchema>;
 
 export type ResumeMeta = Pick<Resume, "id" | "title" | "template" | "locale" | "updatedAt" | "createdAt"> & {
   name: string;

@@ -94,6 +94,15 @@ export function createMcpServer({ env, origin }: Context): McpServer {
         sectionOrder: sectionKeys,
         entrySections,
         dateFormat: "YYYY or YYYY-MM",
+        qr: {
+          kinds: {
+            vcard: "Saves the contact (name, headline, phone, email, first link). Default.",
+            url: "Opens one of basics.links, chosen by `linkId` (the first link when empty).",
+            email: "Opens a new email to basics.email, with `subject` prefilled when set.",
+            phone: "Calls basics.phone.",
+          },
+          note: "Off by default. Turn on with update_resume { qr: { enabled: true, kind } }; it prints in every template, built from the resume's own contact data.",
+        },
       }),
   );
 
@@ -139,7 +148,7 @@ export function createMcpServer({ env, origin }: Context): McpServer {
     {
       title: "Update resume",
       description:
-        "Change any part of a resume. `basics`, `coverLetter` and `fonts` are merged; any section array you pass (experience, education, skills, …) replaces that whole section. For single entries prefer add_entry/update_entry.",
+        "Change any part of a resume. `basics`, `coverLetter`, `qr` and `fonts` are merged; any section array you pass (experience, education, skills, …) replaces that whole section. For single entries prefer add_entry/update_entry.",
       inputSchema: { ...idArg, changes: resumeChangesSchema },
     },
     edit((resume, { changes }: { id: string; changes: z.infer<typeof resumeChangesSchema> }) => applyChanges(resume, changes)),

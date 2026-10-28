@@ -11,6 +11,7 @@ import {
   languageSchema,
   linkSchema,
   projectSchema,
+  qrSchema,
   type Resume,
   resumeSchema,
   sectionKeys,
@@ -73,7 +74,7 @@ function changesOf<S extends z.ZodRawShape>(schema: z.ZodObject<S>) {
   const shape = Object.fromEntries(
     Object.entries(schema.shape).map(([key, field]) => {
       let inner = field as z.ZodType;
-      while (inner instanceof z.ZodDefault) inner = inner.unwrap() as z.ZodType;
+      while (inner instanceof z.ZodDefault || inner instanceof z.ZodCatch) inner = inner.unwrap() as z.ZodType;
       if (inner instanceof z.ZodArray && inner.element instanceof z.ZodObject) inner = z.array(changesOf(inner.element));
       return [key, inner.optional()];
     }),
@@ -81,7 +82,7 @@ function changesOf<S extends z.ZodRawShape>(schema: z.ZodObject<S>) {
   return z.object(shape) as unknown as z.ZodObject<{ [K in keyof S]: z.ZodOptional<z.ZodType<z.output<S[K]>>> }>;
 }
 
-/** Partial resume accepted by create/update. Arrays replace the whole section; `basics`, `coverLetter` and `fonts` are merged. */
+/** Partial resume accepted by create/update. Arrays replace the whole section; `basics`, `coverLetter`, `qr` and `fonts` are merged. */
 export const resumeChangesSchema = z
   .object({
     title: z.string(),
@@ -100,18 +101,20 @@ export const resumeChangesSchema = z
     languages: z.array(changesOf(languageSchema)),
     custom: z.array(changesOf(customSectionSchema)),
     coverLetter: changesOf(coverLetterSchema),
+    qr: changesOf(qrSchema),
   })
   .partial();
 
 export type ResumeChanges = z.infer<typeof resumeChangesSchema>;
 
 export function applyChanges(resume: Resume, changes: ResumeChanges): Resume {
-  const { basics, coverLetter, fonts, ...rest } = changes;
+  const { basics, coverLetter, qr, fonts, ...rest } = changes;
   return finalize({
     ...resume,
     ...(rest as Partial<Resume>),
     basics: { ...resume.basics, ...(basics as Partial<Resume["basics"]>) },
     coverLetter: { ...resume.coverLetter, ...coverLetter },
+    qr: { ...resume.qr, ...qr },
     fonts: { ...resume.fonts, ...fonts },
   });
 }

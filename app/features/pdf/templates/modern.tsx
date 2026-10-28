@@ -4,7 +4,7 @@ import type { Resume, SectionKey } from "~/features/resume/schema";
 import { sidebarTones } from "~/features/resume/tones";
 import { nonEmpty } from "~/features/resume/format";
 
-import { contactItems, createContext, Heading, Sections, type Theme, visibleSections } from "./shared";
+import { contactItems, createContext, Heading, QrCode, Sections, type Theme, visibleSections } from "./shared";
 
 const theme: Theme = {
   base: 9,
@@ -42,6 +42,7 @@ export function ModernTemplate({ resume }: { resume: Resume }) {
               <Text key={i} style={{ marginBottom: 2 }}>{item.label}</Text>
             ),
           )}
+          <QrCode resume={resume} style={{ marginTop: 8 }} />
         </View>
         {side.includes("skills")
           ? resume.skills.filter((g) => g.keywords.length).map((g, i) => (
