@@ -111,7 +111,7 @@ export const coverLetterSchema = z.object({
   body: text(),
 });
 
-export const whatsappSources = ["phone", "number", "username", "off"] as const;
+export const whatsappSources = ["phone", "number", "username"] as const;
 export type WhatsappSource = (typeof whatsappSources)[number];
 
 export const qrKinds = ["vcard", "whatsapp", "url", "email", "phone"] as const;
@@ -130,10 +130,7 @@ export const qrSchema = z.object({
   familyName: text(),
   /** Region (e.g. "MX") whose calling code completes numbers written without one. */
   phoneRegion: z.enum(phoneRegionIds).optional().catch(undefined),
-  /**
-   * Which WhatsApp the code points to: the resume's phone, another number or a
-   * username. "off" leaves it out of the vCard (the "whatsapp" kind treats it as "phone").
-   */
+  /** WhatsApp the "whatsapp" kind opens: the resume's phone, another number or a username. */
   whatsapp: z.enum(whatsappSources).catch("phone").default("phone"),
   whatsappNumber: text(),
   /** Without the "@". */
