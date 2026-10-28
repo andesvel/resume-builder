@@ -2,7 +2,7 @@ import { Page, Text, View } from "@react-pdf/renderer";
 
 import type { Resume } from "~/features/resume/schema";
 
-import { ContactLine, createContext, Sections, type Theme, visibleSections } from "./shared";
+import { ContactLine, createContext, QrCode, Sections, type Theme, visibleSections } from "./shared";
 
 const theme: Theme = {
   base: 10.5,
@@ -21,10 +21,13 @@ export function MinimalTemplate({ resume }: { resume: Resume }) {
   const { basics } = resume;
   return (
     <Page size="A4" style={[ctx.s.page, { paddingVertical: 54, paddingHorizontal: 60 }]}>
-      <View>
-        <Text style={{ fontSize: 22, lineHeight: 1.2 }}>{basics.name}</Text>
-        {basics.headline ? <Text style={{ fontSize: 12, lineHeight: 1.3, color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
-        <ContactLine ctx={ctx} separator="   ·   " style={{ marginTop: 6, fontSize: 9, color: theme.muted }} />
+      <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 16 }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 22, lineHeight: 1.2 }}>{basics.name}</Text>
+          {basics.headline ? <Text style={{ fontSize: 12, lineHeight: 1.3, color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
+          <ContactLine ctx={ctx} separator="   ·   " style={{ marginTop: 6, fontSize: 9, color: theme.muted }} />
+        </View>
+        <QrCode resume={resume} />
       </View>
       <Sections ctx={ctx} sections={visibleSections(resume)} />
     </Page>
