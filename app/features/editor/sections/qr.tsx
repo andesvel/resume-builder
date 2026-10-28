@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Switch } from "~/components/ui/switch";
 import { useI18n } from "~/i18n";
 import { needsRegion, type PhoneRegion, phoneRegionIds, phoneRegions } from "~/features/resume/phone";
-import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName, whatsappUrl } from "~/features/resume/qr";
+import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName } from "~/features/resume/qr";
 import { type QrKind, qrKinds, type QrSettings, type Resume, type WhatsappSource, whatsappSources } from "~/features/resume/schema";
 import { useEditor } from "~/features/resume/store";
 
@@ -23,18 +23,14 @@ export function QrSection({ resume }: { resume: Resume }) {
   const dense = payload ? qrMatrix(payload).version > QR_MAX_COMFORTABLE_VERSION : false;
   const links = basics.links.filter((l) => l.url.trim());
 
-  // WhatsApp rides along in the vCard and is the whole point of the "whatsapp" kind.
-  const withWhatsapp = qr.kind === "vcard" || qr.kind === "whatsapp";
-  const source: WhatsappSource = qr.kind === "whatsapp" && qr.whatsapp === "off" ? "phone" : qr.whatsapp;
-  const sources = qr.kind === "whatsapp" ? whatsappSources.filter((s) => s !== "off") : whatsappSources;
+  const withWhatsapp = qr.kind === "whatsapp";
+  const source = qr.whatsapp;
   // Numbers that end up in the code and were written without a country code.
   const numbers = [
     (qr.kind === "phone" || qr.kind === "vcard" || (withWhatsapp && source === "phone")) && basics.phone,
     withWhatsapp && source === "number" && qr.whatsappNumber,
   ].filter((n): n is string => Boolean(n));
   const askRegion = numbers.some(needsRegion);
-  // The vCard still works without WhatsApp, so say why the link went missing.
-  const whatsappDropped = qr.kind === "vcard" && source !== "off" && Boolean(payload) && !whatsappUrl(resume);
   const regionName = new Intl.DisplayNames([locale], { type: "region" });
 
   return (
@@ -104,7 +100,7 @@ export function QrSection({ resume }: { resume: Resume }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {sources.map((s) => (
+                    {whatsappSources.map((s) => (
                       <SelectItem key={s} value={s}>
                         {t(`qr.whatsappSources.${s}`)}
                       </SelectItem>
@@ -142,7 +138,6 @@ export function QrSection({ resume }: { resume: Resume }) {
           ) : null}
           {[
             !payload && t(`qr.missing.${qr.kind}`),
-            whatsappDropped && t(askRegion && !qr.phoneRegion ? "qr.whatsappNeedsRegion" : "qr.whatsappMissing"),
             dense && t("qr.dense"),
           ]
             .filter(Boolean)

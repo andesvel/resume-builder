@@ -204,7 +204,7 @@ export const es: Messages = {
     kind: "Al escanearlo",
     kinds: { vcard: "Guardar contacto", whatsapp: "Escribir por WhatsApp", url: "Abrir un enlace", email: "Escribir un correo", phone: "Llamar" },
     scans: {
-      vcard: "Ofrece guardar tu nombre, titular, teléfono, correo, primer enlace y WhatsApp como contacto. Los celulares ordenan por apellido; el que aparece en gris es una suposición, así que escribe el tuyo si no es correcto.",
+      vcard: "Ofrece guardar tu nombre, titular, teléfono, correo y primer enlace como contacto. Los celulares ordenan por apellido; el que aparece en gris es una suposición, así que escribe el tuyo si no es correcto.",
       whatsapp: "Abre un chat de WhatsApp contigo, con el mensaje de abajo ya escrito si lo defines.",
       url: "Abre el enlace en el navegador.",
       email: "Abre un correo nuevo para ti, con el asunto de abajo si lo defines.",
@@ -216,14 +216,12 @@ export const es: Messages = {
     message: "Mensaje de WhatsApp",
     messagePlaceholder: "p. ej. Hola, te escribo sobre tu postulación",
     whatsapp: "WhatsApp",
-    whatsappSources: { phone: "El mismo de mi teléfono", number: "Otro número", username: "Mi username", off: "No incluir" },
+    whatsappSources: { phone: "El mismo de mi teléfono", number: "Otro número", username: "Mi username", },
     whatsappNumber: "Número de WhatsApp",
     whatsappUsername: "Username de WhatsApp",
     usernameHint: "Tu número no aparece en el enlace. Si configuraste una llave de username, quien no te haya escrito antes también la necesitará. Tu teléfono de Datos personales se sigue imprimiendo; quítalo ahí si prefieres no compartirlo.",
     region: "Código de país",
     regionPlaceholder: "Elige un país",
-    whatsappNeedsRegion: "Tu número no tiene código de país, así que el enlace de WhatsApp queda fuera. Elige el país arriba o escribe el número con + y su código.",
-    whatsappMissing: "El enlace de WhatsApp queda fuera hasta que completes el número o el username.",
     subject: "Asunto del correo",
     subjectPlaceholder: "p. ej. Sobre tu postulación",
     missing: {
@@ -233,7 +231,7 @@ export const es: Messages = {
       email: "Añade tu correo en Datos personales para generar el código.",
       phone: "Añade tu teléfono en Datos personales para generar el código.",
     },
-    dense: "El código lleva muchos datos, así que se imprime grande (unos 3 cm) y cuesta más escanearlo. Ayuda acortar el titular o el enlace, o no incluir WhatsApp.",
+    dense: "El código lleva muchos datos, así que se imprime grande (unos 3 cm) y cuesta más escanearlo. Ayuda acortar el titular o el enlace.",
   },
   fields: {
     name: "Nombre completo",

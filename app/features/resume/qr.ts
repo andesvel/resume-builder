@@ -14,7 +14,7 @@ export function qrPayload(resume: Resume): string | null {
     case "vcard":
       return vcard(resume);
     case "whatsapp": {
-      const chat = whatsappUrl(resume, true);
+      const chat = whatsappUrl(resume);
       const message = qr.whatsappMessage.trim();
       return chat && message ? `${chat}?text=${encodeURIComponent(message)}` : chat;
     }
@@ -36,13 +36,12 @@ export function qrPayload(resume: Resume): string | null {
 }
 
 /**
- * wa.me link for the resume's WhatsApp, or null when it's off or incomplete
- * (no username, or a number without a country code). `forChat` treats "off"
- * as the resume's phone, since the "whatsapp" kind has nothing else to open.
+ * wa.me link for the resume's WhatsApp, or null when it's incomplete (no
+ * username, or a number without a country code). Kept out of the vCard: it
+ * would push a typical one past the size that scans well once printed.
  */
-export function whatsappUrl({ basics, qr }: Resume, forChat = false): string | null {
-  const source = qr.whatsapp === "off" && forChat ? "phone" : qr.whatsapp;
-  if (source === "off") return null;
+export function whatsappUrl({ basics, qr }: Resume): string | null {
+  const source = qr.whatsapp;
   if (source === "username") {
     const username = whatsappUsername(qr.whatsappUsername);
     return username ? `https://wa.me/${username}` : null;
@@ -62,11 +61,9 @@ function vcard(resume: Resume): string | null {
   const region = qr.phoneRegion ?? "";
   const name = basics.name.trim();
   const phone = basics.phone.trim() ? dialable(basics.phone, region) : "";
-  const whatsapp = whatsappUrl(resume);
-  const whatsappPhone = qr.whatsapp === "number" && qr.whatsappNumber.trim() ? dialable(qr.whatsappNumber, region) : "";
   const email = basics.email.trim();
   const url = basics.links.find((l) => l.url.trim())?.url;
-  if (!name || !(phone || email || url || whatsapp)) return null;
+  if (!name || !(phone || email || url)) return null;
   const { given, family } = splitName(name, qr.familyName, locale);
   const lines = [
     "BEGIN:VCARD",
@@ -76,10 +73,7 @@ function vcard(resume: Resume): string | null {
     basics.headline.trim() && `TITLE:${escape(basics.headline.trim())}`,
     phone && `TEL;TYPE=CELL:${phone}`,
     email && `EMAIL:${escape(email)}`,
-    whatsappPhone && `TEL;TYPE=CELL:${whatsappPhone}`,
     url && `URL:${escape(hrefFor(url))}`,
-    // A plain URL: an iOS "WhatsApp" label (item1.X-ABLabel) costs a QR version.
-    whatsapp && `URL:${whatsapp}`,
     "END:VCARD",
   ];
   return lines.filter(Boolean).join("\r\n");
