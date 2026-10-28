@@ -66,6 +66,8 @@ export const educationSchema = z.object({
   field: text(),
   startDate: partialDate,
   endDate: partialDate,
+  /** Still studying there; shown as "Present" instead of an end date. */
+  current: z.boolean().default(false),
   gpa: text(),
   honors: text(),
 });
