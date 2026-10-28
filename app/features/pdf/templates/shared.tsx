@@ -3,7 +3,7 @@ import { Link, Path, Rect, StyleSheet, Svg, Text, View, type Styles as PdfStyles
 import { getT, type TFunction } from "~/i18n";
 import { displayUrl, formatDateRange, formatPartialDate, hrefFor, nonEmpty } from "~/features/resume/format";
 import { fontFor } from "~/features/resume/fonts";
-import { qrHref, qrMatrix, qrPayload } from "~/features/resume/qr";
+import { QR_QUIET_ZONE, qrHref, qrMatrix, qrPayload, qrPrintSize } from "~/features/resume/qr";
 import type { Resume, SectionKey } from "~/features/resume/schema";
 
 import { type FontFaces, fontFaces } from "../fonts";
@@ -92,13 +92,12 @@ export function contactItems(resume: Resume): { label: string; href?: string }[]
   ].filter((x): x is { label: string; href?: string } => Boolean(x));
 }
 
-/** Printed width including the quiet zone (~25 mm); the code itself stays around 21 mm. */
-export const QR_SIZE = 70;
-const QR_QUIET_ZONE = 4;
-
-/** Text the resume's QR code encodes, or null when it's off or has nothing to carry. */
-export function qrText(resume: Resume): string | null {
-  return resume.qr.enabled ? qrPayload(resume) : null;
+/** The resume's QR code, laid out for print, or null when it's off or has nothing to carry. */
+export function qrLayout(resume: Resume): { text: string; size: number; path: string; width: number } | null {
+  const text = resume.qr.enabled ? qrPayload(resume) : null;
+  if (!text) return null;
+  const { size, path } = qrMatrix(text);
+  return { text, size, path, width: qrPrintSize(size) };
 }
 
 /**
@@ -106,18 +105,17 @@ export function qrText(resume: Resume): string | null {
  * sharp and scans on tinted backgrounds. Clickable in the PDF unless it's a vCard.
  */
 export function QrCode({ resume, style }: { resume: Resume; style?: Style }) {
-  const text = qrText(resume);
-  if (!text) return null;
-  const { size, path } = qrMatrix(text);
-  const box = size + QR_QUIET_ZONE * 2;
+  const qr = qrLayout(resume);
+  if (!qr) return null;
+  const box = qr.size + QR_QUIET_ZONE * 2;
   const code = (
-    <Svg width={QR_SIZE} height={QR_SIZE} viewBox={`${-QR_QUIET_ZONE} ${-QR_QUIET_ZONE} ${box} ${box}`}>
+    <Svg width={qr.width} height={qr.width} viewBox={`${-QR_QUIET_ZONE} ${-QR_QUIET_ZONE} ${box} ${box}`}>
       <Rect x={-QR_QUIET_ZONE} y={-QR_QUIET_ZONE} width={box} height={box} fill="#ffffff" />
-      <Path d={path} fill="#000000" />
+      <Path d={qr.path} fill="#000000" />
     </Svg>
   );
-  const href = qrHref(resume, text);
-  return <View style={[{ width: QR_SIZE, height: QR_SIZE, flexShrink: 0 }, style ?? {}]}>{href ? <Link src={href}>{code}</Link> : code}</View>;
+  const href = qrHref(resume, qr.text);
+  return <View style={[{ width: qr.width, height: qr.width, flexShrink: 0 }, style ?? {}]}>{href ? <Link src={href}>{code}</Link> : code}</View>;
 }
 
 export function Heading({ ctx, children }: { ctx: RenderContext; children: string }) {

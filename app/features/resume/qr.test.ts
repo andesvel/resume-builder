@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createResume } from "./factory";
-import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName } from "./qr";
+import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, qrPrintSize, splitName } from "./qr";
 import type { ResumeInput } from "./schema";
 
 const basics = {
@@ -27,6 +27,7 @@ describe("qrPayload", () => {
       "TEL;TYPE=CELL:+525512345678",
       "EMAIL:ana@example.com",
       "URL:https://ana.dev",
+      "URL:https://wa.me/525512345678",
       "END:VCARD",
     ]);
   });
@@ -39,9 +40,36 @@ describe("qrPayload", () => {
 
   it("leaves out what the resume doesn't have", () => {
     const text = qrPayload(resume({ kind: "vcard" }, { headline: "", phone: "", links: [] }));
-    expect(text).not.toMatch(/TITLE|TEL|URL/);
+    expect(text).not.toMatch(/TITLE|TEL|URL|WhatsApp/);
     expect(qrPayload(resume({ kind: "vcard" }, { name: "" }))).toBeNull();
     expect(qrPayload(resume({ kind: "vcard" }, { phone: "", email: "", links: [] }))).toBeNull();
+  });
+
+  it("adds WhatsApp from the phone, another number or a username", () => {
+    expect(qrPayload(resume({ kind: "vcard", whatsapp: "off" }))).not.toContain("wa.me");
+    const other = qrPayload(resume({ kind: "vcard", whatsapp: "number", whatsappNumber: "+1 (305) 555-0100" }));
+    expect(other).toContain("\r\nTEL;TYPE=CELL:+13055550100\r\n");
+    expect(other).toContain("\r\nURL:https://wa.me/13055550100\r\n");
+    const username = qrPayload(resume({ kind: "vcard", whatsapp: "username", whatsappUsername: " @ana.dev " }));
+    expect(username).toContain("\r\nURL:https://wa.me/ana.dev\r\n");
+    expect(qrPayload(resume({ kind: "vcard", whatsapp: "username" }))).not.toContain("wa.me");
+  });
+
+  it("completes numbers without a country code from the chosen region", () => {
+    const local = { phone: "55 1234 5678" };
+    expect(qrPayload(resume({ kind: "vcard" }, local))).not.toContain("wa.me");
+    expect(qrPayload(resume({ kind: "phone" }, local))).toBe("tel:5512345678");
+    expect(qrPayload(resume({ kind: "vcard", phoneRegion: "MX" }, local))).toContain("URL:https://wa.me/525512345678");
+    expect(qrPayload(resume({ kind: "phone", phoneRegion: "MX" }, local))).toBe("tel:+525512345678");
+  });
+
+  it("opens a WhatsApp chat with an optional message", () => {
+    expect(qrPayload(resume({ kind: "whatsapp" }))).toBe("https://wa.me/525512345678");
+    expect(qrPayload(resume({ kind: "whatsapp", whatsapp: "off", whatsappMessage: "Hola, Ana & co" }))).toBe(
+      "https://wa.me/525512345678?text=Hola%2C%20Ana%20%26%20co",
+    );
+    expect(qrPayload(resume({ kind: "whatsapp", whatsapp: "username", whatsappUsername: "@ana" }))).toBe("https://wa.me/ana");
+    expect(qrPayload(resume({ kind: "whatsapp" }, { phone: "5512345678" }))).toBeNull();
   });
 
   it("uses the chosen link, falling back to the first", () => {
@@ -66,6 +94,12 @@ describe("qrMatrix", () => {
     expect(size).toBe(version * 4 + 17);
     // Finder pattern: the top row starts with a run of 7 dark modules.
     expect(path.startsWith("M0 0h7v1h-7z")).toBe(true);
+  });
+
+  it("grows the printed code instead of shrinking its modules", () => {
+    expect(qrPrintSize(21)).toBe(70);
+    expect(qrPrintSize(57)).toBe(71);
+    expect(qrPrintSize(69)).toBe(84);
   });
 
   it("keeps a typical vCard within the comfortable size", () => {

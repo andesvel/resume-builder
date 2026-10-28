@@ -9,7 +9,7 @@ Local-first resume builder. Write who you are in plain language and get a struct
 - **Editor.** There are forms for every section, with reorderable and hideable sections, reorderable entries, undo/redo and autosave.
 - **Templates.** Professional, Modern and Minimal templates produce text-based PDFs that ATS can parse. The live preview is the exact exported PDF.
 - **Import** from a PDF or Word resume (read by the local AI after you review the text), a LinkedIn data export (.zip, parsed without AI) or a JSON backup.
-- **QR code for printed copies.** Optionally print a QR code that saves your contact (vCard), opens a link, starts an email or calls you. It's drawn as vector shapes, so it prints sharp, and your contact details stay in the text for ATS.
+- **QR code for printed copies.** Optionally print a QR code that saves your contact (vCard, with your WhatsApp by number or username), opens a WhatsApp chat or a link, starts an email or calls you. It's drawn as vector shapes, so it prints sharp, and your contact details stay in the text for ATS.
 - **Cover letter.** You write it or draft it with the local AI from your resume. It exports to a PDF that matches the resume.
 - **i18n.** The UI is in English and Spanish, and each resume has its own content language for headings and dates.
 - **Light/dark theme** in a monochrome style, with Tailwind colors for status only.

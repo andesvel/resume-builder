@@ -1,6 +1,7 @@
 import { encode } from "uqr";
 
 import { hrefFor } from "./format";
+import { dialable, internationalDigits, whatsappUsername } from "./phone";
 import type { Resume } from "./schema";
 
 /**
@@ -12,6 +13,11 @@ export function qrPayload(resume: Resume): string | null {
   switch (qr.kind) {
     case "vcard":
       return vcard(resume);
+    case "whatsapp": {
+      const chat = whatsappUrl(resume, true);
+      const message = qr.whatsappMessage.trim();
+      return chat && message ? `${chat}?text=${encodeURIComponent(message)}` : chat;
+    }
     case "url": {
       const link = basics.links.find((l) => l.id === qr.linkId && l.url.trim()) ?? basics.links.find((l) => l.url.trim());
       return link ? hrefFor(link.url) : null;
@@ -23,10 +29,26 @@ export function qrPayload(resume: Resume): string | null {
       return subject ? `mailto:${email}?subject=${encodeURIComponent(subject)}` : `mailto:${email}`;
     }
     case "phone": {
-      const phone = dialable(basics.phone);
+      const phone = dialable(basics.phone, qr.phoneRegion ?? "");
       return phone ? `tel:${phone}` : null;
     }
   }
+}
+
+/**
+ * wa.me link for the resume's WhatsApp, or null when it's off or incomplete
+ * (no username, or a number without a country code). `forChat` treats "off"
+ * as the resume's phone, since the "whatsapp" kind has nothing else to open.
+ */
+export function whatsappUrl({ basics, qr }: Resume, forChat = false): string | null {
+  const source = qr.whatsapp === "off" && forChat ? "phone" : qr.whatsapp;
+  if (source === "off") return null;
+  if (source === "username") {
+    const username = whatsappUsername(qr.whatsappUsername);
+    return username ? `https://wa.me/${username}` : null;
+  }
+  const digits = internationalDigits(source === "number" ? qr.whatsappNumber : basics.phone, qr.phoneRegion ?? "");
+  return digits ? `https://wa.me/${digits}` : null;
 }
 
 /** URL a PDF reader can open by clicking the code; a vCard has none. */
@@ -35,12 +57,16 @@ export function qrHref(resume: Resume, payload: string): string | undefined {
 }
 
 /** vCard 3.0 with the fields a recruiter would save; null without a name or a way to reach them. */
-function vcard({ basics, qr, locale }: Resume): string | null {
+function vcard(resume: Resume): string | null {
+  const { basics, qr, locale } = resume;
+  const region = qr.phoneRegion ?? "";
   const name = basics.name.trim();
-  const phone = dialable(basics.phone);
+  const phone = basics.phone.trim() ? dialable(basics.phone, region) : "";
+  const whatsapp = whatsappUrl(resume);
+  const whatsappPhone = qr.whatsapp === "number" && qr.whatsappNumber.trim() ? dialable(qr.whatsappNumber, region) : "";
   const email = basics.email.trim();
   const url = basics.links.find((l) => l.url.trim())?.url;
-  if (!name || !(phone || email || url)) return null;
+  if (!name || !(phone || email || url || whatsapp)) return null;
   const { given, family } = splitName(name, qr.familyName, locale);
   const lines = [
     "BEGIN:VCARD",
@@ -50,7 +76,10 @@ function vcard({ basics, qr, locale }: Resume): string | null {
     basics.headline.trim() && `TITLE:${escape(basics.headline.trim())}`,
     phone && `TEL;TYPE=CELL:${phone}`,
     email && `EMAIL:${escape(email)}`,
+    whatsappPhone && `TEL;TYPE=CELL:${whatsappPhone}`,
     url && `URL:${escape(hrefFor(url))}`,
+    // A plain URL: an iOS "WhatsApp" label (item1.X-ABLabel) costs a QR version.
+    whatsapp && `URL:${whatsapp}`,
     "END:VCARD",
   ];
   return lines.filter(Boolean).join("\r\n");
@@ -82,17 +111,22 @@ function escape(value: string): string {
   return value.replace(/[\\,;]/g, (c) => `\\${c}`).replace(/\r?\n/g, "\\n");
 }
 
-/** "+52 (55) 1234-5678" -> "+525512345678". */
-function dialable(phone: string): string {
-  const trimmed = phone.trim();
-  const digits = trimmed.replace(/\D/g, "");
-  return digits ? `${trimmed.startsWith("+") ? "+" : ""}${digits}` : "";
-}
-
 export type QrMatrix = { size: number; version: number; path: string };
 
-/** Above this version modules drop below ~0.4 mm at the printed size (22 mm) and phones start to struggle. */
-export const QR_MAX_COMFORTABLE_VERSION = 10;
+/** Light modules a scanner needs around the code. */
+export const QR_QUIET_ZONE = 4;
+/** 0.38 mm per module: comfortable for a phone camera at reading distance. */
+const QR_MODULE_PT = 1.08;
+/** Smallest printed width (~25 mm with the quiet zone), so short codes don't shrink below it. */
+const QR_MIN_PT = 70;
+
+/** Printed width in points, quiet zone included: it grows with the data instead of shrinking the modules. */
+export function qrPrintSize(size: number): number {
+  return Math.max(QR_MIN_PT, Math.ceil((size + QR_QUIET_ZONE * 2) * QR_MODULE_PT));
+}
+
+/** Above this version the code passes ~29 mm and starts crowding the header. */
+export const QR_MAX_COMFORTABLE_VERSION = 13;
 
 /**
  * Encodes text as an SVG path in module units (one unit per module, no quiet
