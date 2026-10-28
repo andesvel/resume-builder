@@ -12,6 +12,7 @@ import { CustomSections } from "./sections/custom";
 import { EducationSection } from "./sections/education";
 import { ExperienceSection } from "./sections/experience";
 import { CertificationsSection, ProjectsSection } from "./sections/projects";
+import { QrSection } from "./sections/qr";
 import { LanguagesSection, SkillsSection } from "./sections/skills";
 
 function renderSection(key: SectionKey, resume: Resume) {
@@ -58,6 +59,12 @@ export function ResumeEditor({ resume }: { resume: Resume }) {
         <AccordionTrigger>{t("sections.basics")}</AccordionTrigger>
         <AccordionContent>
           <BasicsSection basics={resume.basics} />
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="qr" className="px-4">
+        <AccordionTrigger>{t("qr.title")}</AccordionTrigger>
+        <AccordionContent>
+          <QrSection resume={resume} />
         </AccordionContent>
       </AccordionItem>
       {resume.sectionOrder.map((key, index) => {
