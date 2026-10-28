@@ -163,7 +163,7 @@ export function SectionBody({ ctx, section }: { ctx: RenderContext; section: Sec
               ctx={ctx}
               title={e.institution}
               subtitle={join([e.degree, e.field].filter(Boolean).join(ctx.t("pdf.in")), e.gpa && `${ctx.t("fields.gpa")}: ${e.gpa}`, e.honors)}
-              meta={formatDateRange(e.startDate, e.endDate, locale)}
+              meta={formatDateRange(e.startDate, e.endDate, locale, e.current)}
             />
           ))}
         </>
