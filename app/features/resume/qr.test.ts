@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createResume } from "./factory";
-import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName } from "./qr";
+import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, qrPrintSize, splitName } from "./qr";
 import type { ResumeInput } from "./schema";
 
 const basics = {
@@ -94,6 +94,12 @@ describe("qrMatrix", () => {
     expect(size).toBe(version * 4 + 17);
     // Finder pattern: the top row starts with a run of 7 dark modules.
     expect(path.startsWith("M0 0h7v1h-7z")).toBe(true);
+  });
+
+  it("grows the printed code instead of shrinking its modules", () => {
+    expect(qrPrintSize(21)).toBe(70);
+    expect(qrPrintSize(57)).toBe(71);
+    expect(qrPrintSize(69)).toBe(84);
   });
 
   it("keeps a typical vCard within the comfortable size", () => {

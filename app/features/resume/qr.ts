@@ -113,8 +113,20 @@ function escape(value: string): string {
 
 export type QrMatrix = { size: number; version: number; path: string };
 
-/** Above this version modules drop below ~0.4 mm at the printed size (22 mm) and phones start to struggle. */
-export const QR_MAX_COMFORTABLE_VERSION = 10;
+/** Light modules a scanner needs around the code. */
+export const QR_QUIET_ZONE = 4;
+/** 0.38 mm per module: comfortable for a phone camera at reading distance. */
+const QR_MODULE_PT = 1.08;
+/** Smallest printed width (~25 mm with the quiet zone), so short codes don't shrink below it. */
+const QR_MIN_PT = 70;
+
+/** Printed width in points, quiet zone included: it grows with the data instead of shrinking the modules. */
+export function qrPrintSize(size: number): number {
+  return Math.max(QR_MIN_PT, Math.ceil((size + QR_QUIET_ZONE * 2) * QR_MODULE_PT));
+}
+
+/** Above this version the code passes ~29 mm and starts crowding the header. */
+export const QR_MAX_COMFORTABLE_VERSION = 13;
 
 /**
  * Encodes text as an SVG path in module units (one unit per module, no quiet
