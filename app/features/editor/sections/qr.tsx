@@ -6,13 +6,14 @@ import { Label } from "~/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
 import { useI18n } from "~/i18n";
+import { needsRegion, type PhoneRegion, phoneRegionIds, phoneRegions } from "~/features/resume/phone";
 import { QR_MAX_COMFORTABLE_VERSION, qrMatrix, qrPayload, splitName } from "~/features/resume/qr";
-import { type QrKind, qrKinds, type QrSettings, type Resume } from "~/features/resume/schema";
+import { type QrKind, qrKinds, type QrSettings, type Resume, type WhatsappSource, whatsappSources } from "~/features/resume/schema";
 import { useEditor } from "~/features/resume/store";
 
 /** QR code printed on the resume so whoever holds a paper copy can save, open or call. */
 export function QrSection({ resume }: { resume: Resume }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const update = useEditor((s) => s.update);
   const id = useId();
   const { qr, basics } = resume;
@@ -21,6 +22,16 @@ export function QrSection({ resume }: { resume: Resume }) {
   const payload = qrPayload(resume);
   const dense = payload ? qrMatrix(payload).version > QR_MAX_COMFORTABLE_VERSION : false;
   const links = basics.links.filter((l) => l.url.trim());
+
+  const withWhatsapp = qr.kind === "whatsapp";
+  const source = qr.whatsapp;
+  // Numbers that end up in the code and were written without a country code.
+  const numbers = [
+    (qr.kind === "phone" || qr.kind === "vcard" || (withWhatsapp && source === "phone")) && basics.phone,
+    withWhatsapp && source === "number" && qr.whatsappNumber,
+  ].filter((n): n is string => Boolean(n));
+  const askRegion = numbers.some(needsRegion);
+  const regionName = new Intl.DisplayNames([locale], { type: "region" });
 
   return (
     <div className="grid gap-3">
@@ -75,14 +86,67 @@ export function QrSection({ resume }: { resume: Resume }) {
             {qr.kind === "email" ? (
               <TextField label={t("qr.subject")} placeholder={t("qr.subjectPlaceholder")} value={qr.subject} onChange={(subject) => set({ subject }, false)} />
             ) : null}
+            {qr.kind === "whatsapp" ? (
+              <TextField label={t("qr.message")} placeholder={t("qr.messagePlaceholder")} value={qr.whatsappMessage} onChange={(whatsappMessage) => set({ whatsappMessage }, false)} />
+            ) : null}
           </div>
           <p className="text-sm text-muted-foreground">{t(`qr.scans.${qr.kind}`)}</p>
-          {!payload || dense ? (
-            <p className="flex items-start gap-2 text-sm">
-              <TriangleAlertIcon className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
-              {payload ? t("qr.dense") : t(`qr.missing.${qr.kind}`)}
-            </p>
+          {withWhatsapp ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor={`${id}-wa`}>{t("qr.whatsapp")}</Label>
+                <Select value={source} onValueChange={(whatsapp) => set({ whatsapp: whatsapp as WhatsappSource })}>
+                  <SelectTrigger id={`${id}-wa`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {whatsappSources.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {t(`qr.whatsappSources.${s}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {source === "number" ? (
+                <TextField label={t("qr.whatsappNumber")} type="tel" placeholder="+52 55 1234 5678" value={qr.whatsappNumber} onChange={(whatsappNumber) => set({ whatsappNumber }, false)} />
+              ) : null}
+              {source === "username" ? (
+                <TextField label={t("qr.whatsappUsername")} placeholder="@usuario" value={qr.whatsappUsername} onChange={(whatsappUsername) => set({ whatsappUsername }, false)} />
+              ) : null}
+            </div>
           ) : null}
+          {withWhatsapp && source === "username" ? <p className="text-sm text-muted-foreground">{t("qr.usernameHint")}</p> : null}
+          {askRegion ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor={`${id}-region`}>{t("qr.region")}</Label>
+                <Select value={qr.phoneRegion ?? ""} onValueChange={(phoneRegion) => set({ phoneRegion: phoneRegion as PhoneRegion })}>
+                  <SelectTrigger id={`${id}-region`} className="w-full">
+                    <SelectValue placeholder={t("qr.regionPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {phoneRegionIds.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {regionName.of(r)} (+{phoneRegions[r]})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : null}
+          {[
+            !payload && t(`qr.missing.${qr.kind}`),
+            dense && t("qr.dense"),
+          ]
+            .filter(Boolean)
+            .map((warning) => (
+              <p key={warning as string} className="flex items-start gap-2 text-sm">
+                <TriangleAlertIcon className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+                {warning}
+              </p>
+            ))}
         </>
       ) : null}
     </div>
