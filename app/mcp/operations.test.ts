@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 
 import { createResume } from "~/features/resume/factory";
 
-import { addEntry, applyChanges, createFromChanges, moveEntry, removeEntry, updateEntry } from "./operations";
+import { addEntry, applyChanges, createFromChanges, moveEntry, removeEntry, resumeChangesSchema, updateEntry } from "./operations";
 
 describe("MCP operations", () => {
   it("creates a complete resume from partial data", () => {
@@ -18,6 +19,28 @@ describe("MCP operations", () => {
     expect(r.basics).toMatchObject({ name: "Ana", email: "a@b.co", phone: "123" });
     expect(r.skills.map((s) => s.keywords)).toEqual([["Rust"]]);
     expect(r.fonts.minimal).toBe("lora");
+  });
+
+  it("keeps fields a validated partial update leaves out", () => {
+    const base = createResume({
+      basics: { name: "Ana", email: "a@b.co", summary: "Dev", links: [{ label: "Site", url: "ana.dev" }] },
+      coverLetter: { company: "Acme", body: "Hi" },
+    });
+    const changes = resumeChangesSchema.parse({ basics: { headline: "" }, coverLetter: { role: "Dev" }, fonts: { professional: "inter" } });
+    const r = applyChanges(base, changes);
+    expect(r.basics).toMatchObject({ name: "Ana", email: "a@b.co", summary: "Dev", headline: "" });
+    expect(r.basics.links).toHaveLength(1);
+    expect(r.coverLetter).toMatchObject({ company: "Acme", body: "Hi", role: "Dev" });
+  });
+
+  it("gives entries passed as a whole section their own ids", () => {
+    const r = applyChanges(createResume(), resumeChangesSchema.parse({ education: [{ institution: "A" }, { institution: "B" }] }));
+    expect(r.education[0]?.id).toBeTruthy();
+    expect(r.education[0]?.id).not.toBe(r.education[1]?.id);
+  });
+
+  it("advertises no defaults in the tool input schema", () => {
+    expect(JSON.stringify(z.toJSONSchema(resumeChangesSchema, { io: "input" }))).not.toContain('"default"');
   });
 
   it("rejects invalid values instead of storing them", () => {
