@@ -35,18 +35,17 @@ export function qrHref(resume: Resume, payload: string): string | undefined {
 }
 
 /** vCard 3.0 with the fields a recruiter would save; null without a name or a way to reach them. */
-function vcard({ basics }: Resume): string | null {
+function vcard({ basics, qr, locale }: Resume): string | null {
   const name = basics.name.trim();
   const phone = dialable(basics.phone);
   const email = basics.email.trim();
   const url = basics.links.find((l) => l.url.trim())?.url;
   if (!name || !(phone || email || url)) return null;
-  // Given name first, the rest as family name: fits "Ana Pérez" and "Ana Pérez Gómez".
-  const [given = "", ...family] = name.split(/\s+/);
+  const { given, family } = splitName(name, qr.familyName, locale);
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
-    `N:${escape(family.join(" "))};${escape(given)};;;`,
+    `N:${escape(family)};${escape(given)};;;`,
     `FN:${escape(name)}`,
     basics.headline.trim() && `TITLE:${escape(basics.headline.trim())}`,
     phone && `TEL;TYPE=CELL:${phone}`,
@@ -55,6 +54,28 @@ function vcard({ basics }: Resume): string | null {
     "END:VCARD",
   ];
   return lines.filter(Boolean).join("\r\n");
+}
+
+/**
+ * Splits a full name into given and family names for the vCard, which phones
+ * use to sort contacts. `familyName` (set by the user) wins; otherwise it's a
+ * guess, since "Ana Pérez Gómez" and "Hugart Andres Estrada" look alike: two
+ * surnames in Spanish, one in English.
+ */
+export function splitName(name: string, familyName: string, locale: Resume["locale"]): { given: string; family: string } {
+  const full = name.trim().replace(/\s+/g, " ");
+  const family = familyName.trim().replace(/\s+/g, " ");
+  if (family) {
+    const lower = full.toLowerCase();
+    const suffix = family.toLowerCase();
+    if (lower === suffix) return { given: "", family };
+    // Surname(s) not at the end of the name: keep the whole name as given rather than guess.
+    return { given: lower.endsWith(` ${suffix}`) ? full.slice(0, -family.length).trim() : full, family };
+  }
+  const words = full.split(" ");
+  if (words.length < 2) return { given: full, family: "" };
+  const surnames = locale === "es" && words.length >= 3 ? 2 : 1;
+  return { given: words.slice(0, -surnames).join(" "), family: words.slice(-surnames).join(" ") };
 }
 
 function escape(value: string): string {
