@@ -96,7 +96,7 @@ export function createMcpServer({ env, origin }: Context): McpServer {
         dateFormat: "YYYY or YYYY-MM",
         qr: {
           kinds: {
-            vcard: "Saves the contact (name, headline, phone, email, first link). Default.",
+            vcard: "Saves the contact (name, headline, phone, email, first link). Default. Set `familyName` to the surname(s) when the name has 3+ words; otherwise it's guessed.",
             url: "Opens one of basics.links, chosen by `linkId` (the first link when empty).",
             email: "Opens a new email to basics.email, with `subject` prefilled when set.",
             phone: "Calls basics.phone.",
