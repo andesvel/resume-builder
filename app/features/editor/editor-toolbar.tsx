@@ -80,7 +80,7 @@ export function EditorToolbar({ resume, exportItems }: { resume: Resume; exportI
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button variant="ghost" size="icon" asChild aria-label={t("common.back")}>
-        <Link to="/" viewTransition>
+        <Link to="/resumes" viewTransition>
           <ArrowLeftIcon />
         </Link>
       </Button>
