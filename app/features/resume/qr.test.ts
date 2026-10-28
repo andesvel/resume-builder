@@ -49,12 +49,13 @@ describe("qrPayload", () => {
     expect(text).not.toMatch(/wa\.me|13055550100/);
   });
 
-  it("completes numbers without a country code from the chosen region", () => {
+  it("completes only WhatsApp numbers from the chosen region", () => {
     const local = { phone: "55 1234 5678" };
     expect(qrPayload(resume({ kind: "whatsapp" }, local))).toBeNull();
     expect(qrPayload(resume({ kind: "phone" }, local))).toBe("tel:5512345678");
     expect(qrPayload(resume({ kind: "whatsapp", phoneRegion: "MX" }, local))).toBe("https://wa.me/525512345678");
-    expect(qrPayload(resume({ kind: "vcard", phoneRegion: "MX" }, local))).toContain("TEL;TYPE=CELL:+525512345678");
+    expect(qrPayload(resume({ kind: "vcard", phoneRegion: "MX" }, local))).toContain("TEL;TYPE=CELL:5512345678");
+    expect(qrPayload(resume({ kind: "phone", phoneRegion: "MX" }, local))).toBe("tel:5512345678");
   });
 
   it("opens a WhatsApp chat with an optional message", () => {
