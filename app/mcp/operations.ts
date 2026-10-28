@@ -63,7 +63,25 @@ function findIndex(items: Entry[], entryId: string, section: string): number {
   return index;
 }
 
-/** Partial resume accepted by create/update. Arrays replace the whole section; `basics` is merged. */
+/**
+ * Optional, default-free copy of an object schema. Zod 4 applies inner defaults
+ * even under `.partial()`, so `{ headline: "" }` would parse into a full object
+ * with every other field blanked and wipe them on merge. Defaults are filled in
+ * once, by `finalize`, on the merged resume.
+ */
+function changesOf<S extends z.ZodRawShape>(schema: z.ZodObject<S>) {
+  const shape = Object.fromEntries(
+    Object.entries(schema.shape).map(([key, field]) => {
+      let inner = field as z.ZodType;
+      while (inner instanceof z.ZodDefault) inner = inner.unwrap() as z.ZodType;
+      if (inner instanceof z.ZodArray && inner.element instanceof z.ZodObject) inner = z.array(changesOf(inner.element));
+      return [key, inner.optional()];
+    }),
+  );
+  return z.object(shape) as unknown as z.ZodObject<{ [K in keyof S]: z.ZodOptional<z.ZodType<z.output<S[K]>>> }>;
+}
+
+/** Partial resume accepted by create/update. Arrays replace the whole section; `basics`, `coverLetter` and `fonts` are merged. */
 export const resumeChangesSchema = z
   .object({
     title: z.string(),
@@ -73,15 +91,15 @@ export const resumeChangesSchema = z
     sidebarTone: z.enum(toneIds),
     sectionOrder: z.array(z.enum(sectionKeys)),
     hiddenSections: z.array(z.enum(sectionKeys)),
-    basics: basicsSchema.partial(),
-    experience: z.array(experienceSchema.partial()),
-    education: z.array(educationSchema.partial()),
-    skills: z.array(skillGroupSchema.partial()),
-    projects: z.array(projectSchema.partial()),
-    certifications: z.array(certificationSchema.partial()),
-    languages: z.array(languageSchema.partial()),
-    custom: z.array(customSectionSchema.partial()),
-    coverLetter: coverLetterSchema.partial(),
+    basics: changesOf(basicsSchema),
+    experience: z.array(changesOf(experienceSchema)),
+    education: z.array(changesOf(educationSchema)),
+    skills: z.array(changesOf(skillGroupSchema)),
+    projects: z.array(changesOf(projectSchema)),
+    certifications: z.array(changesOf(certificationSchema)),
+    languages: z.array(changesOf(languageSchema)),
+    custom: z.array(changesOf(customSectionSchema)),
+    coverLetter: changesOf(coverLetterSchema),
   })
   .partial();
 
