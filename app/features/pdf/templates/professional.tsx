@@ -2,7 +2,7 @@ import { Page, Text, View } from "@react-pdf/renderer";
 
 import type { Resume } from "~/features/resume/schema";
 
-import { ContactLine, createContext, QR_SIZE, QrCode, qrText, Sections, type Theme, visibleSections } from "./shared";
+import { ContactLine, createContext, QrCode, qrLayout, Sections, type Theme, visibleSections } from "./shared";
 
 const theme: Theme = {
   base: 9.5,
@@ -18,11 +18,12 @@ const theme: Theme = {
 export function ProfessionalTemplate({ resume }: { resume: Resume }) {
   const ctx = createContext(resume, theme);
   const { basics } = resume;
+  const qr = qrLayout(resume);
   return (
     <Page size="A4" style={[ctx.s.page, { padding: 40 }]}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 4 }}>
         {/* Same width as the code on the right so the header stays centered on the page. */}
-        {qrText(resume) ? <View style={{ width: QR_SIZE }} /> : null}
+        {qr ? <View style={{ width: qr.width }} /> : null}
         <View style={{ flex: 1, alignItems: "center" }}>
           <Text style={{ ...ctx.font.bold, fontSize: 20, lineHeight: 1.2 }}>{basics.name}</Text>
           {basics.headline ? <Text style={{ fontSize: 11, lineHeight: 1.3, color: theme.muted, marginTop: 3 }}>{basics.headline}</Text> : null}
